@@ -9,7 +9,7 @@ class Course_List extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 5,
+      length: 3,
       child: Scaffold(
         appBar: AppBar(
           centerTitle: true,
@@ -34,16 +34,16 @@ class Course_List extends StatelessWidget {
                 Navigator.popUntil(context, (route) => route.isFirst);
                 break;
               case 1:
-                Navigator.pushNamed(context, '/jaehyeon3');
+                Navigator.pushNamed(context, '/course_list');
                 break;
               case 2:
-                Navigator.pushNamed(context, '/youngsoo');
+                Navigator.popUntil(context, (route) => route.isFirst);
                 break;
               case 3:
-                Navigator.pushNamed(context, '/jaehyeon2');
+                Navigator.popUntil(context, (route) => route.isFirst);
                 break;
               case 4:
-                Navigator.pushNamed(context, '/dasom');
+                Navigator.popUntil(context, (route) => route.isFirst);
                 break;
               default:
             }
@@ -60,25 +60,25 @@ class Course_List extends StatelessWidget {
                   Icons.card_membership,
                   color: Color(0xff243c84),
                 ),
-                label: '스탬프'),
+                label: '코스북'),
             BottomNavigationBarItem(
                 icon: Icon(
                   Icons.coffee,
                   color: Color(0xff243c84),
                 ),
-                label: '주문'),
+                label: '코스 그리기'),
             BottomNavigationBarItem(
                 icon: Icon(
                   Icons.credit_card,
                   color: Color(0xff243c84),
                 ),
-                label: '결제 내역'),
+                label: '나의 산책'),
             BottomNavigationBarItem(
                 icon: Icon(
                   Icons.shopping_bag,
                   color: Color(0xff243c84),
                 ),
-                label: '장바구니'),
+                label: '마이페이지'),
           ],
 
           //selectedItemColor: Color.fromARGB(255, 197, 142, 233),
@@ -106,8 +106,8 @@ class _Course_ListState extends State<_Course_List> {
   @override
   void initState() {
     super.initState();
-    courseListFuture = getCourseList(0);
-    //print(productListFuture);
+    courseListFuture = getCourseList();
+    //print(courseListFuture);
   }
 
   // 그림그리기
@@ -194,46 +194,28 @@ class _Course_ListState extends State<_Course_List> {
                     height: 50,
                   ),
                   Tab(
-                    text: "Coffee",
+                    text: "내 코스",
                     height: 50,
                   ),
                   Tab(
-                    text: "Tea",
-                    height: 50,
-                  ),
-                  Tab(
-                    text: "Beverage",
-                    height: 50,
-                  ),
-                  Tab(
-                    text: "Flacks",
+                    text: "즐겨찾기",
                     height: 50,
                   ),
                 ],
                 onTap: (index) {
                   if (index == 1) {
                     setState(() {
-                      courseListFuture = getCourseList(1);
+                      courseListFuture = getCourseList();
                       print("test1");
                     });
                   } else if (index == 2) {
                     setState(() {
-                      courseListFuture = getCourseList(2);
+                      courseListFuture = getCourseList();
                       print("test2");
-                    });
-                  } else if (index == 3) {
-                    setState(() {
-                      courseListFuture = getCourseList(3);
-                      print("test3");
-                    });
-                  } else if (index == 4) {
-                    setState(() {
-                      courseListFuture = getCourseList(4);
-                      print("test4");
                     });
                   } else if (index == 0) {
                     setState(() {
-                      courseListFuture = getCourseList(0);
+                      courseListFuture = getCourseList();
                       print("test0");
                     });
                   }
@@ -245,35 +227,46 @@ class _Course_ListState extends State<_Course_List> {
                     key: PageStorageKey("GRID_VIEW1"),
                     itemCount: snapshot.data!.length,
                     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
+                      crossAxisCount: 1,
                       crossAxisSpacing: 12,
                       mainAxisSpacing: 12,
                     ),
                     itemBuilder: (BuildContext context, int index) {
                       return Container(
                         child: Center(
-                            child: Column(
-                          children: [
-                            Container(
-                              width: 90,
-                              child: IconButton(
-                                icon:
-                                    Image.asset('assets/images/footprint.png'),
-                                onPressed: () {
-                                  print("page이동");
+                            child: Container(
+                          width: 500,
+                          height: 200,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            border: Border.all(color: Color(0xff000000)),
+                          ),
+                          child: Column(
+                            children: [
+                              Container(
+                                width: 90,
+                                child: IconButton(
+                                  icon: Image.asset(
+                                      'assets/images/footprint.png'),
+                                  onPressed: () {
+                                    print("page이동");
 
-                                  Navigator.pushNamed(
-                                    context,
-                                    "/subin",
-                                    arguments: {"cate_no": 2, "product_no": 2},
-                                  );
-                                },
+                                    Navigator.pushNamed(
+                                      context,
+                                      "/subin",
+                                      arguments: {
+                                        "cate_no": 2,
+                                        "product_no": 2
+                                      },
+                                    );
+                                  },
+                                ),
                               ),
-                            ),
-                            Container(child: Text("2")),
-                            Container(child: Text("3")),
-                            Container(child: Text("4 원")),
-                          ],
+                              Container(child: Text("2")),
+                              Container(child: Text("3")),
+                              Container(child: Text("4 원")),
+                            ],
+                          ),
                         )),
                       );
                     }),
@@ -281,144 +274,88 @@ class _Course_ListState extends State<_Course_List> {
                     key: PageStorageKey("GRID_VIEW2"),
                     itemCount: snapshot.data!.length,
                     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
+                      crossAxisCount: 1,
                       crossAxisSpacing: 12,
                       mainAxisSpacing: 12,
                     ),
                     itemBuilder: (BuildContext context, int index) {
                       return Container(
                         child: Center(
-                            child: Column(
-                          children: [
-                            Container(
-                              width: 90,
-                              child: IconButton(
-                                icon:
-                                    Image.asset('assets/images/footprint.png'),
-                                onPressed: () {
-                                  print("page이동");
-
-                                  Navigator.pushNamed(
-                                    context,
-                                    "/subin",
-                                    arguments: {"cate_no": 2, "product_no": 3},
-                                  );
-                                },
+                            child: Container(
+                              width: 500,
+                              height: 200,
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                border: Border.all(color: Color(0xff000000)),
                               ),
-                            ),
-                            Container(child: Text("3")),
-                            Container(child: Text("3")),
-                            Container(child: Text("3 원")),
-                          ],
-                        )),
+                              child: Column(
+                                                        children: [
+                              Container(
+                                width: 90,
+                                child: IconButton(
+                                  icon:
+                                      Image.asset('assets/images/footprint.png'),
+                                  onPressed: () {
+                                    print("page이동");
+
+                                    Navigator.pushNamed(
+                                      context,
+                                      "/subin",
+                                      arguments: {"cate_no": 2, "product_no": 3},
+                                    );
+                                  },
+                                ),
+                              ),
+                              Container(child: Text("3")),
+                              Container(child: Text("3")),
+                              Container(child: Text("3 원")),
+                                                        ],
+                                                      ),
+                            )),
                       );
                     }),
                 GridView.builder(
                     key: PageStorageKey("GRID_VIEW3"),
                     itemCount: snapshot.data!.length,
                     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
+                      crossAxisCount: 1,
                       crossAxisSpacing: 12,
                       mainAxisSpacing: 12,
                     ),
                     itemBuilder: (BuildContext context, int index) {
                       return Container(
                         child: Center(
-                            child: Column(
-                          children: [
-                            Container(
-                              width: 90,
-                              child: IconButton(
-                                icon:
-                                    Image.asset('assets/images/footprint.png'),
-                                onPressed: () {
-                                  print("page이동");
-
-                                  Navigator.pushNamed(
-                                    context,
-                                    "/subin",
-                                    arguments: {"cate_no": 2, "product_no": 3},
-                                  );
-                                },
+                            child: Container(
+                              width: 500,
+                              height: 200,
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                border: Border.all(color: Color(0xff000000)),
                               ),
-                            ),
-                            Container(child: Text("3")),
-                            Container(child: Text("3")),
-                            Container(child: Text("3 원")),
-                          ],
-                        )),
-                      );
-                    }),
-                GridView.builder(
-                    key: PageStorageKey("GRID_VIEW4"),
-                    itemCount: snapshot.data!.length,
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      crossAxisSpacing: 12,
-                      mainAxisSpacing: 12,
-                    ),
-                    itemBuilder: (BuildContext context, int index) {
-                      return Container(
-                        child: Center(
-                            child: Column(
-                          children: [
-                            Container(
-                              width: 90,
-                              child: IconButton(
-                                icon:
-                                    Image.asset('assets/images/footprint.png'),
-                                onPressed: () {
-                                  print("page이동");
+                              child: Column(
+                                                        children: [
+                              Container(
+                                width: 90,
+                                child: IconButton(
+                                  icon:
+                                      Image.asset('assets/images/footprint.png'),
+                                  onPressed: () {
+                                    print("page이동");
 
-                                  Navigator.pushNamed(
-                                    context,
-                                    "/subin",
-                                    arguments: {"cate_no": 3, "product_no": 2},
-                                  );
-                                },
+                                    Navigator.pushNamed(
+                                      context,
+                                      "/subin",
+                                      arguments: {"cate_no": 2, "product_no": 3},
+                                    );
+                                  },
+                                ),
                               ),
-                            ),
-                            Container(child: Text("3")),
-                            Container(child: Text("2")),
-                            Container(child: Text("2 원")),
-                          ],
-                        )),
-                      );
-                    }),
-                GridView.builder(
-                    key: PageStorageKey("GRID_VIEW5"),
-                    itemCount: snapshot.data!.length,
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      crossAxisSpacing: 12,
-                      mainAxisSpacing: 12,
-                    ),
-                    itemBuilder: (BuildContext context, int index) {
-                      return Container(
-                        child: Center(
-                            child: Column(
-                          children: [
-                            Container(
-                              width: 90,
-                              child: IconButton(
-                                icon:
-                                    Image.asset('assets/images/footprint.png'),
-                                onPressed: () {
-                                  print("page이동");
-
-                                  Navigator.pushNamed(
-                                    context,
-                                    "/subin",
-                                    arguments: {"cate_no": 2, "product_no": 3},
-                                  );
-                                },
-                              ),
-                            ),
-                            Container(child: Text("3")),
-                            Container(child: Text("2")),
-                            Container(child: Text("3 원")),
-                          ],
-                        )),
+                              Container(child: Text("3")),
+                              Container(child: Text("3")),
+                              Container(child: Text("3 원")),
+                                                        ],
+                                                      ),
+                            )),
                       );
                     }),
               ]))
@@ -430,7 +367,7 @@ class _Course_ListState extends State<_Course_List> {
   }
 
   //리스트가져오기 dio통신
-  Future<List<Course_list_Vo>> getCourseList(int cate_no) async {
+  Future<List<Course_list_Vo>> getCourseList() async {
     try {
       /*----요청처리-------------------*/
       //Dio 객체 생성 및 설정
@@ -440,8 +377,8 @@ class _Course_ListState extends State<_Course_List> {
       dio.options.headers['Content-Type'] = 'application/json';
 
       // 서버 요청
-      final response = await dio.post(
-        'http://localhost:9020/api/walking/coursebooklist',
+      final response = await dio.get(
+        'http://localhost:9020/api/walking/coursebooktotallist',
       );
 
       /*----응답처리-------------------*/
@@ -450,16 +387,18 @@ class _Course_ListState extends State<_Course_List> {
         //print(response.data); // json->map 자동변경
         //print(response.data.length); // json->map 자동변경
         //print(response.data[0]); // json->map 자동변경
+        //print(response.data[0]); // json->map 자동변경
         //return PersonVo.fromJson(response.data["apiData"]);
         //print(response.data[0].productname);
 
         List<Course_list_Vo> courseList = [];
+        //print(Course_list_Vo.fromJson(response.data));
         for (int i = 0; i < response.data.length; i++) {
           Course_list_Vo course_list_Vo =
               Course_list_Vo.fromJson(response.data[i]);
           courseList.add(course_list_Vo);
         }
-        print(courseList.length);
+        //print(courseList.length);
         return courseList;
       } else {
         //접속실패 404, 502등등 api서버 문제
@@ -469,5 +408,5 @@ class _Course_ListState extends State<_Course_List> {
       //예외 발생
       throw Exception('Failed to load person: $e');
     }
-  } //getProductList()
+  } //getCourseList()
 }
