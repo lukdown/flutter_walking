@@ -16,3 +16,9 @@ subprojects {
 tasks.register("clean", Delete) {
     delete rootProject.buildDir
 }
+
+repositories {
+    maven { url 'https://devrepo.kakao.com/nexus/repository/kakaomap-releases/' }
+}
+
+implementation 'com.kakao.maps.open:android:3.22.1'
