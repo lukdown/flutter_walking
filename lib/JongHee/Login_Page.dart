@@ -228,7 +228,7 @@ Future<void> getUserData(storage, String id, String password, BuildContext conte
       await storage.write(key: 'UserNo', value: userNo);
       await storage.write(key: 'UserToken', value: token);
 
-      Navigator.pushNamed(context, "/course_list");
+      Navigator.pushNamed(context, "/");
       //return UserListVo.fromJson(response.data);
     } else {
       //접속실패 404, 502등등 api서버 문제
