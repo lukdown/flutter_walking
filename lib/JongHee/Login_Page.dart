@@ -181,8 +181,8 @@ class _LoginPageState extends State<_Login_Page> {
 
 Future<void> getUserData(storage, String id, String password, BuildContext context) async {
   print("getPersonByNo(): 데이터 가져오기 중");
-  print(id);
-  print(password);
+  //print(id);
+  //print(password);
   //코드 작성
   try {
     /*----요청처리-------------------*/
@@ -216,19 +216,23 @@ Future<void> getUserData(storage, String id, String password, BuildContext conte
       //print(response.headers);
       var authorizationHeader = response.headers['authorization'];
       var token = authorizationHeader?.first.split(" ")[1];
-      print(token);
+      //print(token);
 
-      print(response.data['apiData']); // json->map 자동변경
+      //print(response.data['apiData']); // json->map 자동변경
 
       var data = response.data['apiData'];
       var userNo = data['users_no'].toString();
-      print("==================="); // json->map 자동변
+      //print("==================="); // json->map 자동변
       //print(data['users_no'].toString()); // json->map 자동변경
 
       await storage.write(key: 'UserNo', value: userNo);
       await storage.write(key: 'UserToken', value: token);
 
-      Navigator.pushNamed(context, "/");
+      Navigator.pushNamed(
+        context, "/course_list",
+        arguments: {
+          "login_users_no": userNo,
+        },);
       //return UserListVo.fromJson(response.data);
     } else {
       //접속실패 404, 502등등 api서버 문제
@@ -242,10 +246,10 @@ Future<void> getUserData(storage, String id, String password, BuildContext conte
 
 Future<void> test(storage)async{
   String xxx = await storage.read(key: 'UserToken');
-  print(xxx);
+  //print(xxx);
 
   String zzz = await storage.read(key: 'UserNo');
-  print(zzz);
+ //print(zzz);
 }
 
 Future<void> testlogout(storage)async{
