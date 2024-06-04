@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
-import 'UserListVo.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class Login_page extends StatelessWidget {
+
+  // Create storage
+
   const Login_page({super.key});
 
   @override
@@ -17,6 +20,8 @@ class Login_page extends StatelessWidget {
 }
 
 class _Login_Page extends StatefulWidget {
+
+
   const _Login_Page({super.key});
 
   @override
@@ -24,10 +29,16 @@ class _Login_Page extends StatefulWidget {
 }
 
 class _LoginPageState extends State<_Login_Page> {
-
+  final FlutterSecureStorage storage = new FlutterSecureStorage();
   final TextEditingController _idController = TextEditingController();
   final TextEditingController _pwController = TextEditingController();
 
+//초기화(1번 실행)
+  @override
+  void initState() {
+    super.initState();
+
+  }
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -109,7 +120,7 @@ class _LoginPageState extends State<_Login_Page> {
                   padding: EdgeInsets.only(bottom: 15)
                 ),
                 onPressed: (){
-                  getUserData(_idController.text, _pwController.text);
+                  getUserData(_idController.text, _pwController.text, context);
                 },
                 child: Text("Login",
                   style: TextStyle(
@@ -128,7 +139,7 @@ class _LoginPageState extends State<_Login_Page> {
 }
 
 
-Future<void> getUserData(String id, String password) async {
+Future<void> getUserData(String id, String password, BuildContext context) async {
   print("getPersonByNo(): 데이터 가져오기 중");
   print(id);
   print(password);
@@ -162,18 +173,19 @@ Future<void> getUserData(String id, String password) async {
     /*----응답처리-------------------*/
     if (response.statusCode == 200) {
       //접속성공 200 이면
-      print(response.headers['authorization']);
-      /*
-      String authorizationHeader = response.headers['authorization'] as String;
-      List<String> headerParts = authorizationHeader.split(" ");
-      String? token = headerParts.length > 1 ? headerParts[1] : null;
+      //print(response.headers);
+      var authorizationHeader = response.headers['authorization'];
+      var token = authorizationHeader?.first.split(" ")[1];
+      print(token);
 
-      print('토큰값:$token');
-      */
-      print(response.data); // json->map 자동변경
+      print(response.data['apiData']); // json->map 자동변경
 
 
 
+      //await storage.write(key: 'UserData', value: response.data['apiData']);
+      //await storage.write(key: 'UserToken', value: token);
+
+      Navigator.pushNamed(context, "/course_list");
       //return UserListVo.fromJson(response.data);
     } else {
       //접속실패 404, 502등등 api서버 문제

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'home.dart';
 import 'JongHee/Login_Page.dart';
 import 'EunBin/Gps_Map.dart';
@@ -7,11 +7,17 @@ import 'YounSoo/Course_List.dart';
 
 
 void main() {
-  runApp(const MyApp());
+  // FlutterSecureStorage 객체 생성
+  final storage = FlutterSecureStorage(aOptions: _getAndroidOptions());
+
+  // 애플리케이션 시작
+  runApp(MyApp(storage: storage));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final FlutterSecureStorage storage;
+
+  const MyApp({Key? key, required this.storage}) : super(key: key);
 
   // This widget is the root of your application.
   @override
@@ -32,4 +38,6 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-
+AndroidOptions _getAndroidOptions() => const AndroidOptions(
+  encryptedSharedPreferences: true,
+);
