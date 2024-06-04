@@ -29,7 +29,7 @@ class _Login_Page extends StatefulWidget {
 }
 
 class _LoginPageState extends State<_Login_Page> {
-  final FlutterSecureStorage storage = new FlutterSecureStorage();
+  final storage = const FlutterSecureStorage();
   final TextEditingController _idController = TextEditingController();
   final TextEditingController _pwController = TextEditingController();
 
@@ -120,12 +120,52 @@ class _LoginPageState extends State<_Login_Page> {
                   padding: EdgeInsets.only(bottom: 15)
                 ),
                 onPressed: (){
-                  getUserData(_idController.text, _pwController.text, context);
+                  getUserData(storage,_idController.text, _pwController.text, context);
                 },
                 child: Text("Login",
                   style: TextStyle(
                     fontSize: 30,
                     color: Color(0xFFffffff)
+                  ),
+                ),
+              ),
+            ),
+            Container(
+              width: 150,
+              height: 50,
+              margin: EdgeInsets.only(top: 50),
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                    backgroundColor: Color(0xFF068cd2),
+                    padding: EdgeInsets.only(bottom: 15)
+                ),
+                onPressed: (){
+                  test(storage);
+                },
+                child: Text("test",
+                  style: TextStyle(
+                      fontSize: 30,
+                      color: Color(0xFFffffff)
+                  ),
+                ),
+              ),
+            ),
+            Container(
+              width: 150,
+              height: 50,
+              margin: EdgeInsets.only(top: 50),
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                    backgroundColor: Color(0xFF068cd2),
+                    padding: EdgeInsets.only(bottom: 15)
+                ),
+                onPressed: (){
+                  testlogout(storage);
+                },
+                child: Text("testlogout",
+                  style: TextStyle(
+                      fontSize: 30,
+                      color: Color(0xFFffffff)
                   ),
                 ),
               ),
@@ -139,7 +179,7 @@ class _LoginPageState extends State<_Login_Page> {
 }
 
 
-Future<void> getUserData(String id, String password, BuildContext context) async {
+Future<void> getUserData(storage, String id, String password, BuildContext context) async {
   print("getPersonByNo(): 데이터 가져오기 중");
   print(id);
   print(password);
@@ -180,10 +220,13 @@ Future<void> getUserData(String id, String password, BuildContext context) async
 
       print(response.data['apiData']); // json->map 자동변경
 
+      var data = response.data['apiData'];
+      var userNo = data['users_no'].toString();
+      print("==================="); // json->map 자동변
+      //print(data['users_no'].toString()); // json->map 자동변경
 
-
-      //await storage.write(key: 'UserData', value: response.data['apiData']);
-      //await storage.write(key: 'UserToken', value: token);
+      await storage.write(key: 'UserNo', value: userNo);
+      await storage.write(key: 'UserToken', value: token);
 
       Navigator.pushNamed(context, "/course_list");
       //return UserListVo.fromJson(response.data);
@@ -195,4 +238,20 @@ Future<void> getUserData(String id, String password, BuildContext context) async
     //예외 발생
     throw Exception('Failed to load person: $e');
   }
+}
+
+Future<void> test(storage)async{
+  String xxx = await storage.read(key: 'UserToken');
+  print(xxx);
+
+  String zzz = await storage.read(key: 'UserNo');
+  print(zzz);
+}
+
+Future<void> testlogout(storage)async{
+  await storage.delete(key: 'UserToken');
+
+
+  await storage.delete(key: 'UserNo');
+
 }
