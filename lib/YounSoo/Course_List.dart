@@ -19,7 +19,10 @@ class Course_List extends StatelessWidget {
           title: Text(
             "코스북",
             style: TextStyle(
-                fontWeight: FontWeight.w600, color: Color(0xff243c84)),
+                fontWeight: FontWeight.w600,
+                color: Color(0xff243c84),
+                fontSize: 30
+            ),
           ),
         ),
         body: _Course_List(),
@@ -159,7 +162,7 @@ class _Course_ListState extends State<_Course_List> {
                 labelStyle: TextStyle(
                     color: Colors.black,
                     fontWeight: FontWeight.bold,
-                    fontSize: 11),
+                    fontSize: 20),
                 indicatorWeight: 5,
                 tabs: [
                   Tab(
