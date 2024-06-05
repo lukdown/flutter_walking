@@ -15,7 +15,7 @@ class Home extends StatelessWidget {
       routes: {
         '/login': (context) => Login_page(),
         '/course_list': (context) => Course_List(),
-        '/gps_map': (context) => Gps_Map(),
+        '/gps_map': (context) => GpsMap(),
       },
     );
   }
