@@ -19,7 +19,7 @@ class Course_list_Vo {
   int login_users_no;
 
   int? course_like_no;
-
+  int? course_favorites_no;
 
 
 
@@ -41,6 +41,7 @@ class Course_list_Vo {
       required this.write_users_no,
       required this.login_users_no,
       required this.course_like_no,
+      required this.course_favorites_no,
   });
 
   //map--> personVo형식으로 변환
@@ -61,6 +62,7 @@ class Course_list_Vo {
       write_users_no: apiData['write_users_no'],
       login_users_no: apiData['login_users_no'],
       course_like_no: apiData['course_like_no'],
+      course_favorites_no: apiData['course_favorites_no'],
     );
   }
 
@@ -82,12 +84,13 @@ class Course_list_Vo {
       'write_users_no': write_users_no,
       'login_users_no': login_users_no,
       'course_like_no': course_like_no,
+      'course_favorites_no': course_favorites_no,
 
     };
   }
 
   @override
   String toString() {
-    return 'Course_list_Vo{course_no: $course_no, users_no: $users_no, course_name: $course_name, course_difficulty: $course_difficulty, course_length: $course_length, course_time: $course_time, course_hit: $course_hit, course_region: $course_region, course_date: $course_date, course_open: $course_open, course_introduce: $course_introduce, like_count: $like_count, write_users_no: $write_users_no, login_users_no: $login_users_no, course_like_no: $course_like_no}';
+    return 'Course_list_Vo{course_no: $course_no, users_no: $users_no, course_name: $course_name, course_difficulty: $course_difficulty, course_length: $course_length, course_time: $course_time, course_hit: $course_hit, course_region: $course_region, course_date: $course_date, course_open: $course_open, course_introduce: $course_introduce, like_count: $like_count, write_users_no: $write_users_no, login_users_no: $login_users_no, course_like_no: $course_like_no, course_favorites_no: $course_favorites_no}';
   }
 }

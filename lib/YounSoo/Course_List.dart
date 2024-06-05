@@ -2,6 +2,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import 'course_list_Vo.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class Course_List extends StatelessWidget {
   const Course_List({super.key});
@@ -100,10 +101,12 @@ class _Course_List extends StatefulWidget {
 
 // 할일
 class _Course_ListState extends State<_Course_List> {
+  final storage = const FlutterSecureStorage();
   // 라우터
   late final args = ModalRoute.of(context)!.settings.arguments as Map;
 
   // 공통 변수
+  //var login_users_no2 = 0;
   bool isFavorite = false;
   bool isLike = false;
   late Future<List<Course_list_Vo>> courseListFuture;
@@ -112,7 +115,7 @@ class _Course_ListState extends State<_Course_List> {
   @override
   void initState() {
     super.initState();
-    //courseListFuture = getCourseList(login_users_no);
+    courseListFuture = getCourseList(0);
     //print(courseListFuture);
   }
 
@@ -127,7 +130,7 @@ class _Course_ListState extends State<_Course_List> {
     final login_users_no = args['login_users_no'];
     // 추가코드   // 데이터 불러괴 메소드 호출
     //print("initState(): 데이터 가져오기 전");
-    courseListFuture = getCourseList(login_users_no);
+    //courseListFuture = getCourseList(login_users_no, 0);
     //print("initState(): 데이터 가져오기 후");
 
     print("================================");
@@ -180,12 +183,12 @@ class _Course_ListState extends State<_Course_List> {
                     });
                   } else if (index == 2) {
                     setState(() {
-                      courseListFuture = getCourseList(login_users_no);
+                      courseListFuture = getCoursefList();
                       print("test2");
                     });
                   } else if (index == 0) {
                     setState(() {
-                      courseListFuture = getCourseList(login_users_no);
+                      courseListFuture = getCourseList(0);
                       print("test0");
                     });
                   }
@@ -239,23 +242,29 @@ class _Course_ListState extends State<_Course_List> {
                                         child: Row(
                                           children: [
                                             Container(
-                                              height: 30,
-                                              child: Text("${snapshot.data![index].course_region}"),
+                                              width: 240,
+
+                                              child: Text(
+                                                "${snapshot.data![index].course_region}",
+                                                style: TextStyle(
+                                                  fontSize: 20,
+                                                ),
+                                              ),
                                             ),
                                             Container(
                                               width: 40,
                                               child: IconButton(
                                                   onPressed: (){
-                                                    print(Text("즐겨찾기 버튼 클릭"));
-                                                    setState(() {
-                                                      isFavorite = !isFavorite;
-                                                    });
+                                                    //print(Text("즐겨찾기 버튼 클릭"));
+                                                    //setState(() {
+                                                      //isFavorite = !isFavorite;
+                                                    //});
                                                   },
                                                   icon: Icon(
                                                     size: 25,
                                                     Icons.star,
                                                     //color: (isFavorite=true) ? Color(0xffff00ff) : Color(0xffd6d6d6),
-                                                    color: _favorite(isFavorite),
+                                                    color: _favorite(isFavorite, snapshot.data![index].course_favorites_no),
                                                   )
                                               ),
                                             ),
@@ -263,6 +272,7 @@ class _Course_ListState extends State<_Course_List> {
                                         ),
                                       ),
                                       Container(
+                                        margin: EdgeInsets.fromLTRB(0, 5, 0, 5),
                                         alignment: Alignment.centerRight,
                                         width: 300,
                                         child: Row(
@@ -295,7 +305,12 @@ class _Course_ListState extends State<_Course_List> {
                                             ),
                                             Container(
                                               width: 25,
-                                              child: Text("${snapshot.data![index].like_count}"),
+                                              child: Text(
+                                                  "${snapshot.data![index].like_count}",
+                                                  style: TextStyle(
+                                                    fontSize: 15,
+                                                  ),
+                                              ),
                                             ),
                                             Container(
                                               child: Image.asset(
@@ -307,7 +322,12 @@ class _Course_ListState extends State<_Course_List> {
                                             Container(
                                               width: 25,
                                               margin: EdgeInsets.fromLTRB(10, 0, 0, 0),
-                                              child: Text("${snapshot.data![index].course_hit}"),
+                                              child: Text(
+                                                  "${snapshot.data![index].course_hit}",
+                                                  style: TextStyle(
+                                                  fontSize: 15,
+                                                ),
+                                              ),
                                             ),
                                           ],
                                         ),
@@ -319,19 +339,39 @@ class _Course_ListState extends State<_Course_List> {
                                           children: [
                                             Container(
                                               width: 70,
-                                              child: Text("코스 이름 : "),
+                                              child: Text(
+                                                "코스이름 : ",
+                                                style: TextStyle(
+                                                  fontSize: 15,
+                                                ),
+                                              ),
                                             ),
                                             Container(
-                                              width: 105,
-                                              child: Text("${snapshot.data![index].course_name}"),
+                                              width: 100,
+                                              child: Text(
+                                                "${snapshot.data![index].course_name}",
+                                                style: TextStyle(
+                                                  fontSize: 15,
+                                                ),
+                                              ),
                                             ),
                                             Container(
                                               width: 55,
-                                              child: Text("난이도 : "),
+                                              child: Text(
+                                                  "난이도 : ",
+                                                style: TextStyle(
+                                                  fontSize: 15,
+                                                ),
+                                              ),
                                             ),
                                             Container(
                                               width: 70,
-                                              child: Text("${snapshot.data![index].course_difficulty}"),
+                                              child: Text(
+                                                  "${snapshot.data![index].course_difficulty}",
+                                                style: TextStyle(
+                                                  fontSize: 15,
+                                                ),
+                                              ),
                                             ),
 
                                           ],
@@ -343,16 +383,40 @@ class _Course_ListState extends State<_Course_List> {
                                         child: Row(
                                           children: [
                                             Container(
-                                              child: Text("소요시간 : "),
+                                              width: 70,
+                                              child: Text(
+                                                  "소요시간 : ",
+                                                style: TextStyle(
+                                                  fontSize: 15,
+                                                ),
+                                              ),
                                             ),
                                             Container(
-                                              child: Text("${snapshot.data![index].course_time}"),
+                                              width: 100,
+                                              child: Text(
+                                                  "${snapshot.data![index].course_time}",
+                                                style: TextStyle(
+                                                  fontSize: 15,
+                                                ),
+                                              ),
                                             ),
                                             Container(
-                                              child: Text("길이 : "),
+                                              width: 55,
+                                              child: Text(
+                                                  "길이 : ",
+                                                style: TextStyle(
+                                                  fontSize: 15,
+                                                ),
+                                              ),
                                             ),
                                             Container(
-                                              child: Text("${snapshot.data![index].course_length} m"),
+                                              width: 70,
+                                              child: Text(
+                                                  "${snapshot.data![index].course_length} m",
+                                                style: TextStyle(
+                                                  fontSize: 15,
+                                                ),
+                                              ),
                                             ),
                                           ],
                                         ),
@@ -363,10 +427,21 @@ class _Course_ListState extends State<_Course_List> {
                                         child: Row(
                                           children: [
                                             Container(
-                                              child: Text("설명 : "),
+                                              width: 55,
+                                              child: Text(
+                                                "설명 : ",
+                                                style: TextStyle(
+                                                  fontSize: 15,
+                                                ),),
                                             ),
                                             Container(
-                                              child: Text("${snapshot.data![index].course_introduce}"),
+                                              width: 245,
+                                              child: Text(
+                                                  "${snapshot.data![index].course_introduce}",
+                                                style: TextStyle(
+                                                  fontSize: 15,
+                                                ),
+                                              ),
                                             ),
 
                                           ],
@@ -388,41 +463,26 @@ class _Course_ListState extends State<_Course_List> {
                           return Container(
                             child: Center(
                                 child: Container(
-                                  width: 360,
-                                  height: 200,
+                                  width: 400,
+                                  height: 250,
                                   decoration: BoxDecoration(
                                     color: Colors.white,
                                     border: Border.all(color: Color(0xff000000)),
                                   ),
                                   child: Row(
                                     children: [
-                                      Container(
-                                        width: 90,
-                                        child: IconButton(
-                                          icon: Image.asset(
-                                              'assets/images/footprint.png',
-                                          ),
-                                          onPressed: () {
-                                            print("page이동");
 
-                                            Navigator.pushNamed(
-                                              context,
-                                              "/subin",
-                                              arguments: {
-                                                "course_no": 31,
-                                              },
-                                            );
-                                          },
-                                        ),
-                                      ),
                                       Container(
                                           child: Column(
                                             children: [
                                               Container(
-                                                width: 30,
+                                                alignment: Alignment.centerRight,
+                                                width: 350,
                                                 child: IconButton(
+
                                                   icon: Image.asset(
-                                                      'assets/images/footprint.png'),
+                                                      width: 25,
+                                                      'assets/images/right-arrow_3031716.png'),
                                                   onPressed: () {
                                                     print("page이동");
 
@@ -437,83 +497,141 @@ class _Course_ListState extends State<_Course_List> {
                                                 ),
                                               ),
                                               Container(
+                                                alignment: Alignment.centerLeft,
+                                                width: 300,
                                                 child: Row(
                                                   children: [
                                                     Container(
-                                                      child: Text("제목"),
+                                                      height: 30,
+                                                      child: Text("${snapshot.data![index].course_region}"),
                                                     ),
                                                     Container(
-                                                      width: 30,
+                                                      width: 40,
                                                       child: IconButton(
-                                                        icon: Image.asset(
-                                                            'assets/images/footprint.png'),
-                                                        onPressed: () {
-                                                          print("page이동");
-
-                                                          Navigator.pushNamed(
-                                                            context,
-                                                            "/subin",
-                                                            arguments: {
-                                                              "course_no": 31,
-                                                            },
-                                                          );
-                                                        },
+                                                          onPressed: (){
+                                                            //print(Text("즐겨찾기 버튼 클릭"));
+                                                            //setState(() {
+                                                            //isFavorite = !isFavorite;
+                                                            //});
+                                                          },
+                                                          icon: Icon(
+                                                            size: 25,
+                                                            Icons.star,
+                                                            //color: (isFavorite=true) ? Color(0xffff00ff) : Color(0xffd6d6d6),
+                                                            color: _favorite(isFavorite, snapshot.data![index].course_favorites_no),
+                                                          )
                                                       ),
                                                     ),
                                                   ],
                                                 ),
                                               ),
                                               Container(
+                                                alignment: Alignment.centerRight,
+                                                width: 300,
                                                 child: Row(
                                                   children: [
                                                     Container(
-                                                      child: Text("좋아요"),
+                                                      child: IconButton(
+                                                          onPressed: (){
+                                                            // print(Text("좋아요 버튼 클릭"));
+                                                            // if(snapshot.data![index].course_like_no == 0) {
+                                                            //   getLikeInsert(login_users_no, snapshot.data![index].course_no);
+                                                            //
+                                                            // }else {
+                                                            //   getLikeDelete(login_users_no, snapshot.data![index].course_no);
+                                                            //
+                                                            // }
+                                                            // setState(() {
+                                                            //   isLike = !isLike;
+                                                            //
+                                                            //
+                                                            //
+                                                            // });
+                                                          },
+                                                          icon: Icon(
+                                                            size: 25,
+                                                            Icons.favorite,
+                                                            //color: (isFavorite=true) ? Color(0xffff00ff) : Color(0xffd6d6d6),
+                                                            color: _like(isLike, snapshot.data![index].course_like_no),
+                                                          )
+                                                      ),
                                                     ),
                                                     Container(
-                                                      child: Text("12"),
+                                                      width: 25,
+                                                      child: Text("${snapshot.data![index].like_count}"),
                                                     ),
                                                     Container(
-                                                      child: Text("조회수"),
+                                                      child: Image.asset(
+
+                                                        'assets/images/view_709612.png',
+                                                        width: 25,
+                                                      ),
                                                     ),
                                                     Container(
-                                                      child: Text("51"),
+                                                      width: 25,
+                                                      margin: EdgeInsets.fromLTRB(10, 0, 0, 0),
+                                                      child: Text("${snapshot.data![index].course_hit}"),
                                                     ),
                                                   ],
                                                 ),
                                               ),
                                               Container(
+                                                alignment: Alignment.centerRight,
+                                                width: 300,
                                                 child: Row(
                                                   children: [
                                                     Container(
-                                                      child: Text("코스이름"),
+                                                      width: 70,
+                                                      child: Text("코스 이름 : "),
                                                     ),
                                                     Container(
-                                                      child: Text("엄청 힘든 코스임"),
+                                                      width: 105,
+                                                      child: Text("${snapshot.data![index].course_name}"),
                                                     ),
                                                     Container(
-                                                      child: Text("난이도"),
+                                                      width: 55,
+                                                      child: Text("난이도 : "),
                                                     ),
                                                     Container(
-                                                      child: Text("매우매우 힘듬"),
+                                                      width: 70,
+                                                      child: Text("${snapshot.data![index].course_difficulty}"),
+                                                    ),
+
+                                                  ],
+                                                ),
+                                              ),
+                                              Container(
+                                                alignment: Alignment.centerRight,
+                                                width: 300,
+                                                child: Row(
+                                                  children: [
+                                                    Container(
+                                                      child: Text("소요시간 : "),
+                                                    ),
+                                                    Container(
+                                                      child: Text("${snapshot.data![index].course_time}"),
+                                                    ),
+                                                    Container(
+                                                      child: Text("길이 : "),
+                                                    ),
+                                                    Container(
+                                                      child: Text("${snapshot.data![index].course_length} m"),
                                                     ),
                                                   ],
                                                 ),
                                               ),
                                               Container(
+                                                alignment: Alignment.centerRight,
+                                                width: 300,
                                                 child: Row(
                                                   children: [
                                                     Container(
-                                                      child: Text("소요시간"),
+                                                      child: Text("설명 : "),
                                                     ),
                                                     Container(
-                                                      child: Text("12분"),
+                                                      child: Text("${snapshot.data![index].course_introduce}"),
                                                     ),
-                                                    Container(
-                                                      child: Text("길이"),
-                                                    ),
-                                                    Container(
-                                                      child: Text("1.1km"),
-                                                    ),
+
                                                   ],
                                                 ),
                                               ),
@@ -533,40 +651,26 @@ class _Course_ListState extends State<_Course_List> {
                           return Container(
                             child: Center(
                                 child: Container(
-                                  width: 500,
-                                  height: 200,
+                                  width: 400,
+                                  height: 250,
                                   decoration: BoxDecoration(
                                     color: Colors.white,
                                     border: Border.all(color: Color(0xff000000)),
                                   ),
                                   child: Row(
                                     children: [
-                                      Container(
-                                        width: 90,
-                                        child: IconButton(
-                                          icon: Image.asset(
-                                              'assets/images/footprint.png'),
-                                          onPressed: () {
-                                            print("page이동");
 
-                                            Navigator.pushNamed(
-                                              context,
-                                              "/subin",
-                                              arguments: {
-                                                "course_no": 31,
-                                              },
-                                            );
-                                          },
-                                        ),
-                                      ),
                                       Container(
                                           child: Column(
                                             children: [
                                               Container(
-                                                width: 30,
+                                                alignment: Alignment.centerRight,
+                                                width: 350,
                                                 child: IconButton(
+
                                                   icon: Image.asset(
-                                                      'assets/images/footprint.png'),
+                                                      width: 25,
+                                                      'assets/images/right-arrow_3031716.png'),
                                                   onPressed: () {
                                                     print("page이동");
 
@@ -581,83 +685,141 @@ class _Course_ListState extends State<_Course_List> {
                                                 ),
                                               ),
                                               Container(
+                                                alignment: Alignment.centerLeft,
+                                                width: 300,
                                                 child: Row(
                                                   children: [
                                                     Container(
-                                                      child: Text("제목"),
+                                                      height: 30,
+                                                      child: Text("${snapshot.data![index].course_region}"),
                                                     ),
                                                     Container(
-                                                      width: 30,
+                                                      width: 40,
                                                       child: IconButton(
-                                                        icon: Image.asset(
-                                                            'assets/images/footprint.png'),
-                                                        onPressed: () {
-                                                          print("page이동");
-
-                                                          Navigator.pushNamed(
-                                                            context,
-                                                            "/subin",
-                                                            arguments: {
-                                                              "course_no": 31,
-                                                            },
-                                                          );
-                                                        },
+                                                          onPressed: (){
+                                                            //print(Text("즐겨찾기 버튼 클릭"));
+                                                            //setState(() {
+                                                            //isFavorite = !isFavorite;
+                                                            //});
+                                                          },
+                                                          icon: Icon(
+                                                            size: 25,
+                                                            Icons.star,
+                                                            //color: (isFavorite=true) ? Color(0xffff00ff) : Color(0xffd6d6d6),
+                                                            color: _favorite(isFavorite, snapshot.data![index].course_favorites_no),
+                                                          )
                                                       ),
                                                     ),
                                                   ],
                                                 ),
                                               ),
                                               Container(
+                                                alignment: Alignment.centerRight,
+                                                width: 300,
                                                 child: Row(
                                                   children: [
                                                     Container(
-                                                      child: Text("좋아요"),
+                                                      child: IconButton(
+                                                          onPressed: (){
+                                                            // print(Text("좋아요 버튼 클릭"));
+                                                            // if(snapshot.data![index].course_like_no == 0) {
+                                                            //   getLikeInsert(login_users_no, snapshot.data![index].course_no);
+                                                            //
+                                                            // }else {
+                                                            //   getLikeDelete(login_users_no, snapshot.data![index].course_no);
+                                                            //
+                                                            // }
+                                                            // setState(() {
+                                                            //   isLike = !isLike;
+                                                            //
+                                                            //
+                                                            //
+                                                            // });
+                                                          },
+                                                          icon: Icon(
+                                                            size: 25,
+                                                            Icons.favorite,
+                                                            //color: (isFavorite=true) ? Color(0xffff00ff) : Color(0xffd6d6d6),
+                                                            color: _like(isLike, snapshot.data![index].course_like_no),
+                                                          )
+                                                      ),
                                                     ),
                                                     Container(
-                                                      child: Text("12"),
+                                                      width: 25,
+                                                      child: Text("${snapshot.data![index].like_count}"),
                                                     ),
                                                     Container(
-                                                      child: Text("조회수"),
+                                                      child: Image.asset(
+
+                                                        'assets/images/view_709612.png',
+                                                        width: 25,
+                                                      ),
                                                     ),
                                                     Container(
-                                                      child: Text("51"),
+                                                      width: 25,
+                                                      margin: EdgeInsets.fromLTRB(10, 0, 0, 0),
+                                                      child: Text("${snapshot.data![index].course_hit}"),
                                                     ),
                                                   ],
                                                 ),
                                               ),
                                               Container(
+                                                alignment: Alignment.centerRight,
+                                                width: 300,
                                                 child: Row(
                                                   children: [
                                                     Container(
-                                                      child: Text("코스이름"),
+                                                      width: 70,
+                                                      child: Text("코스 이름 : "),
                                                     ),
                                                     Container(
-                                                      child: Text("엄청 힘든 코스임"),
+                                                      width: 105,
+                                                      child: Text("${snapshot.data![index].course_name}"),
                                                     ),
                                                     Container(
-                                                      child: Text("난이도"),
+                                                      width: 55,
+                                                      child: Text("난이도 : "),
                                                     ),
                                                     Container(
-                                                      child: Text("매우매우 힘듬"),
+                                                      width: 70,
+                                                      child: Text("${snapshot.data![index].course_difficulty}"),
+                                                    ),
+
+                                                  ],
+                                                ),
+                                              ),
+                                              Container(
+                                                alignment: Alignment.centerRight,
+                                                width: 300,
+                                                child: Row(
+                                                  children: [
+                                                    Container(
+                                                      child: Text("소요시간 : "),
+                                                    ),
+                                                    Container(
+                                                      child: Text("${snapshot.data![index].course_time}"),
+                                                    ),
+                                                    Container(
+                                                      child: Text("길이 : "),
+                                                    ),
+                                                    Container(
+                                                      child: Text("${snapshot.data![index].course_length} m"),
                                                     ),
                                                   ],
                                                 ),
                                               ),
                                               Container(
+                                                alignment: Alignment.centerRight,
+                                                width: 300,
                                                 child: Row(
                                                   children: [
                                                     Container(
-                                                      child: Text("소요시간"),
+                                                      child: Text("설명 : "),
                                                     ),
                                                     Container(
-                                                      child: Text("12분"),
+                                                      child: Text("${snapshot.data![index].course_introduce}"),
                                                     ),
-                                                    Container(
-                                                      child: Text("길이"),
-                                                    ),
-                                                    Container(
-                                                      child: Text("1.1km"),
-                                                    ),
+
                                                   ],
                                                 ),
                                               ),
@@ -679,7 +841,12 @@ class _Course_ListState extends State<_Course_List> {
   }
 
   //리스트가져오기 dio통신
-  Future<List<Course_list_Vo>> getCourseList(login_users_no) async {
+  Future<List<Course_list_Vo>> getCourseList(write_users_no) async {
+    var login_users_no = await storage.read(key: 'UserNo');
+    print("=====421412============");
+    print(login_users_no);
+    print(write_users_no);
+    print("=====421412============");
 
     try {
       /*----요청처리-------------------*/
@@ -696,6 +863,7 @@ class _Course_ListState extends State<_Course_List> {
           // 예시 data  map->json자동변경
           //'login_users_no': login_users_no,
           'login_users_no': login_users_no,
+          'write_users_no': write_users_no,
         },
       );
 
@@ -715,7 +883,60 @@ class _Course_ListState extends State<_Course_List> {
           Course_list_Vo course_list_Vo =
               Course_list_Vo.fromJson(response.data[i]);
           courseList.add(course_list_Vo);
-          print(courseList[i].course_like_no);
+          //print(courseList[i].write_users_no);
+        }
+        //print(courseList);
+        return courseList;
+      } else {
+        //접속실패 404, 502등등 api서버 문제
+        throw Exception('api 서버 문제');
+      }
+    } catch (e) {
+      //예외 발생
+      throw Exception('Failed to load person: $e');
+    }
+  } //getCourseList()
+
+
+  // 즐겨찾기 리스트가져오기 dio통신
+  Future<List<Course_list_Vo>> getCoursefList() async {
+    String? login_users_no = await storage.read(key: 'UserNo');
+    print("=====421412============");
+    print(login_users_no);
+    //print(write_users_no);
+    print("=====421412============");
+
+    try {
+      /*----요청처리-------------------*/
+      //Dio 객체 생성 및 설정
+      var dio = Dio();
+
+      // 헤더설정:json으로 전송
+      dio.options.headers['Content-Type'] = 'application/json';
+
+      // 서버 요청
+      final response = await dio.post(
+        'http://localhost:9020/api/walking/coursebookflist',
+        data: login_users_no,
+      );
+
+      /*----응답처리-------------------*/
+      if (response.statusCode == 200) {
+        //접속성공 200 이면
+        //print(response.data); // json->map 자동변경
+        //print(response.data.length); // json->map 자동변경
+        //print(response.data[0]); // json->map 자동변경
+        //print(response.data[0]); // json->map 자동변경
+        //return PersonVo.fromJson(response.data["apiData"]);
+        //print(response.data[0].productname);
+
+        List<Course_list_Vo> courseList = [];
+        //print(Course_list_Vo.fromJson(response.data));
+        for (int i = 0; i < response.data.length; i++) {
+          Course_list_Vo course_list_Vo =
+          Course_list_Vo.fromJson(response.data[i]);
+          courseList.add(course_list_Vo);
+          //print(courseList[i].write_users_no);
         }
         //print(courseList);
         return courseList;
@@ -733,8 +954,8 @@ class _Course_ListState extends State<_Course_List> {
 // 좋아요 등록 dio통신
   Future<void> getLikeInsert(login_users_no, course_no) async {
 
-    print(login_users_no);
-    print(course_no);
+    //print(login_users_no);
+    //print(course_no);
     print("===================erwr=====");
     try {
       /*----요청처리-------------------*/
@@ -763,7 +984,7 @@ class _Course_ListState extends State<_Course_List> {
         //print(response.data[0]); // json->map 자동변경
         //return PersonVo.fromJson(response.data["apiData"]);
         //print(response.data[0].productname);
-        print(response.data["apiData"]); // json->map 자동변경
+        //print(response.data["apiData"]); // json->map 자동변경
         isLike = !isLike;
 
 
@@ -781,8 +1002,8 @@ class _Course_ListState extends State<_Course_List> {
 // 좋아요 삭제 dio통신
   Future<void> getLikeDelete(login_users_no, course_no) async {
 
-    print(login_users_no);
-    print(course_no);
+    //print(login_users_no);
+    //print(course_no);
     print("===================erwr=====");
     try {
       /*----요청처리-------------------*/
@@ -829,8 +1050,8 @@ class _Course_ListState extends State<_Course_List> {
 
 }
 
-Color _favorite(isFavorite){
-  if(isFavorite == true){
+Color _favorite(isFavorite, course_favorites_no){
+  if(course_favorites_no != 0){
     // 코드
     return Color(0xffffff00);
   }else{
