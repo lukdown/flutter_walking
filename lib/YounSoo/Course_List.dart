@@ -207,7 +207,7 @@ class _Course_ListState extends State<_Course_List> {
                         child: Center(
                             child: Container(
                           width: 400,
-                          height: 250,
+                          height: 300,
                           decoration: BoxDecoration(
                             color: Colors.white,
                             border: Border.all(color: Color(0xff000000)),
@@ -219,38 +219,19 @@ class _Course_ListState extends State<_Course_List> {
                                   child: Column(
                                     children: [
                                       Container(
-                                        alignment: Alignment.centerRight,
-                                        width: 350,
-                                        child: IconButton(
-
-                                          icon: Image.asset(
-                                            width: 25,
-                                              'assets/images/right-arrow_3031716.png'),
-                                          onPressed: () {
-                                            print("page이동");
-
-                                            Navigator.pushNamed(
-                                              context,
-                                              "/subin",
-                                              arguments: {
-                                                "course_no": 31,
-                                              },
-                                            );
-                                          },
-                                        ),
-                                      ),
-                                      Container(
-                                        alignment: Alignment.centerLeft,
-                                        width: 300,
+                                        margin: EdgeInsets.fromLTRB(0, 10, 0, 0),
+                                        padding: EdgeInsets.fromLTRB(4, 0, 0, 0),
+                                        width: 355,
                                         child: Row(
                                           children: [
                                             Container(
-                                              width: 240,
-
+                                              width: 310,
+                                              alignment: Alignment.center,
                                               child: Text(
                                                 "${snapshot.data![index].course_region}",
                                                 style: TextStyle(
-                                                  fontSize: 20,
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 25,
                                                 ),
                                               ),
                                             ),
@@ -336,6 +317,7 @@ class _Course_ListState extends State<_Course_List> {
                                         ),
                                       ),
                                       Container(
+                                        margin: EdgeInsets.fromLTRB(0, 0, 0, 5),
                                         alignment: Alignment.centerRight,
                                         width: 300,
                                         child: Row(
@@ -381,6 +363,7 @@ class _Course_ListState extends State<_Course_List> {
                                         ),
                                       ),
                                       Container(
+                                        margin: EdgeInsets.fromLTRB(0, 0, 0, 5),
                                         alignment: Alignment.centerRight,
                                         width: 300,
                                         child: Row(
@@ -425,6 +408,7 @@ class _Course_ListState extends State<_Course_List> {
                                         ),
                                       ),
                                       Container(
+                                        margin: EdgeInsets.fromLTRB(0, 0, 0, 5),
                                         alignment: Alignment.centerRight,
                                         width: 300,
                                         child: Row(
@@ -447,9 +431,33 @@ class _Course_ListState extends State<_Course_List> {
                                               ),
                                             ),
 
+
                                           ],
                                         ),
                                       ),
+                                      Container(
+                                        alignment: Alignment.center,
+                                        margin: EdgeInsets.fromLTRB(10, 20, 0, 0),
+                                        width: 200,
+                                        height: 50,
+
+                                        child: ElevatedButton(
+                                          style: ElevatedButton.styleFrom(
+                                              backgroundColor: Color(0xFF068cd2),
+
+                                          ),
+                                          onPressed: (){
+                                            //getUserData(storage,_idController.text, _pwController.text, context);
+                                          },
+                                          child: Text("보기",
+                                            style: TextStyle(
+                                                fontSize: 25,
+                                                color: Color(0xffffffff)
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+
                                     ],
                                   )
                               ),
