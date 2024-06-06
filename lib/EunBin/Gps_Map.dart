@@ -1,5 +1,4 @@
 import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
@@ -77,8 +76,6 @@ class _GpsMapState extends State<_GpsMap> {
   void _updateMarker() {
     setState(() {
       // 좌표 추가
-
-
       _markers.clear();
       _markers.add(
         Marker(
@@ -105,7 +102,6 @@ class _GpsMapState extends State<_GpsMap> {
 
   void _updatePolyline() {
     setState(() {
-
       // 새로운 폴리라인 추가
       _polylines.add(
         Polyline(
@@ -118,13 +114,11 @@ class _GpsMapState extends State<_GpsMap> {
     });
   }
 
-
   //맵 불러오기
   void _onMapCreated(GoogleMapController controller) {
     mapController = controller;
     _updateMarker();
   }
-
 
   //타이머 시작 --------------------------------------------------------------------------//
   void _startTimer() {
@@ -149,8 +143,6 @@ class _GpsMapState extends State<_GpsMap> {
       });
     }
   }
-
-
 
   void _stopTimer() {
     if (_isRunning) {
@@ -188,7 +180,6 @@ class _GpsMapState extends State<_GpsMap> {
 
   //---------------------------------------------------------------------------//
 
-
   // 직선 거리 계산
   double _calculatePolylineLength(List<LatLng> points) {
     double totalDistance = 0.0;
@@ -208,7 +199,7 @@ class _GpsMapState extends State<_GpsMap> {
     return totalDistance;
   }
 
-// 두 지점 간의 직선 거리 계산
+  // 두 지점 간의 직선 거리 계산
   double _coordinateDistance(double startLat, double startLng, double endLat, double endLng) {
     const double radius = 6371000; // 지구 반지름 (미터)
 
@@ -226,12 +217,6 @@ class _GpsMapState extends State<_GpsMap> {
 
     return radius * c; // 직선 거리 반환
   }
-
-
-
-
-
-
 
   //////////////////////////////////////빌드빌드빌드빌드/////////////////////////////////////////
   @override
@@ -255,6 +240,7 @@ class _GpsMapState extends State<_GpsMap> {
                   zoom: 15.0,
                 ),
                 markers: _markers,
+                polylines: _polylines,
               ),
             ),
             Container(
@@ -281,14 +267,12 @@ class _GpsMapState extends State<_GpsMap> {
                     children: [
                       if (!_isRunning) Expanded( // 시작 전에만 보이는 버튼
                         child: TextButton(
-                          child: Icon(Icons.play_arrow, color: Colors.red),
-                          onPressed: (){
-                            _startTimer();
-                            // 기존 폴리라인 삭제
-                            _polylines.clear();
-                          }
-
-
+                            child: Icon(Icons.play_arrow, color: Colors.red),
+                            onPressed: (){
+                              _startTimer();
+                              // 기존 폴리라인 삭제
+                              _polylines.clear();
+                            }
                         ),
                       ),
                       if (_isRunning) Expanded( // 시작 후에만 보이는 버튼
@@ -299,10 +283,10 @@ class _GpsMapState extends State<_GpsMap> {
                       ),
                       if (_isRunning && !_isPaused) Expanded( // 시작 후에 일시정지하지 않은 경우만 보이는 버튼
                         child: TextButton(
-                          child: Icon(Icons.pause, color: Colors.red),
-                          onPressed: (){
-                            _pauseTimer();
-                          }
+                            child: Icon(Icons.pause, color: Colors.red),
+                            onPressed: (){
+                              _pauseTimer();
+                            }
                         ),
                       ),
                       if (_isPaused && _isRunning) Expanded( // 일시정지 후에만 보이는 버튼
