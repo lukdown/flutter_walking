@@ -470,6 +470,7 @@ class _GpsMapState extends State<_GpsMap> {
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(8.0),
+              color: Color(0xFFffffff),
               child: Column(
                 children: [
                   Center(
