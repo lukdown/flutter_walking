@@ -36,21 +36,48 @@ class _GpsMapState extends State<_GpsMap> {
   String? lat;
   String? lng;
   Set<Marker> _markers = {};
+  Set<Marker> _startmarker = {};
   bool _isRunning = false;
   bool _isPaused = false;
   int _seconds = 0;
+  double _totalDistance = 0.0;
+  double _caloriesBurned = 0.0;
+  double _weight = 70.0; // 기본 체중 70kg으로 설정
   List<LatLng> polylineCoordinates = [];
   Set<Polyline> _polylines = {};
-
-  //저장 전
-  String? timeElapsed;
-  String? distanceTraveled;
-  String? calorieBurned;
+  BitmapDescriptor? _startMarkerIcon;
+  BitmapDescriptor? _movingMarkerIcon;
+  bool _isStarted = false; // 시작 상태를 저장하는 변수를 추가합니다.
+  late double _currentZoomLevel = 15.0; // 기본 확대/축소 레벨을 설정합니다.
 
   @override
   void initState() {
     super.initState();
+    _loadMarkerIcons();
     getGeoData();
+  }
+
+  //맵 불러오기
+  void _onMapCreated(GoogleMapController controller) {
+    mapController = controller;
+    mapController.getZoomLevel().then((zoomLevel) {
+      setState(() {
+        _currentZoomLevel = zoomLevel; // 현재 확대/축소 레벨을 저장합니다.
+      });
+    });
+    _updateMarker();
+  }
+
+  // Load custom marker icons
+  void _loadMarkerIcons() async {
+    _startMarkerIcon = await BitmapDescriptor.fromAssetImage(
+      ImageConfiguration(size: Size(10, 10)),
+      'assets/images/redping.png',
+    );
+    _movingMarkerIcon = await BitmapDescriptor.fromAssetImage(
+      ImageConfiguration(size: Size(48, 48)),
+      'assets/images/blueman.png',
+    );
   }
 
   //위치 데이터 가져오기
@@ -72,17 +99,22 @@ class _GpsMapState extends State<_GpsMap> {
     _updateMarker(); // 그 위치에 마커가 찍힌다
   }
 
-  //마커 찍기
-  void _updateMarker() {
+  //마커 출발점에서 찍기
+  void _startMarker(){
     setState(() {
-      // 좌표 추가
-      _markers.clear();
-      _markers.add(
+      // 기존 마커들을 모두 지우고 새로운 마커 추가
+      _startmarker.clear();
+      BitmapDescriptor markerIcon = _startMarkerIcon!;
+      if (_isRunning) {
+        markerIcon = _movingMarkerIcon!;
+      }
+      _startmarker.add(
         Marker(
-          markerId: const MarkerId('currentLocation'),
+          markerId: const MarkerId('startLocation'),
           position: LatLng(double.parse(lat!), double.parse(lng!)),
+          icon: markerIcon,
           infoWindow: const InfoWindow(
-            title: 'Current Location',
+            title: 'Start Location',
           ),
         ),
       );
@@ -94,12 +126,49 @@ class _GpsMapState extends State<_GpsMap> {
           ),
         ),
       );
+    });
+  }
+
+  //마커 업데이트
+  void _updateMarker() {
+    setState(() {
+      // 기존 마커들을 모두 지우고 새로운 마커 추가
+      _markers.clear();
+      BitmapDescriptor markerIcon = _isRunning ? _movingMarkerIcon! : _startMarkerIcon!;
+      _markers.add(
+        Marker(
+          markerId: const MarkerId('currentLocation'),
+          position: LatLng(double.parse(lat!), double.parse(lng!)),
+          icon: markerIcon,
+          infoWindow: const InfoWindow(
+            title: 'Current Location',
+          ),
+        ),
+      );
+
+      // startMarker가 있다면 추가
+      if (_startmarker.isNotEmpty) {
+        _markers.addAll(_startmarker);
+      }
+
+      mapController.animateCamera(
+        CameraUpdate.newCameraPosition(
+          CameraPosition(
+            target: LatLng(double.parse(lat!), double.parse(lng!)),
+            zoom: _currentZoomLevel, // 현재 확대/축소 레벨을 적용합니다.
+          ),
+        ),
+      );
 
       // 폴리라인 업데이트
       _updatePolyline();
     });
   }
 
+
+
+
+  //폴리라인
   void _updatePolyline() {
     setState(() {
       // 새로운 폴리라인 추가
@@ -114,22 +183,25 @@ class _GpsMapState extends State<_GpsMap> {
     });
   }
 
-  //맵 불러오기
-  void _onMapCreated(GoogleMapController controller) {
-    mapController = controller;
-    _updateMarker();
-  }
+
 
   //타이머 시작 --------------------------------------------------------------------------//
+  // 타이머 시작
   void _startTimer() {
+    // 타이머 시작 전 초기 위치 데이터 가져오기
+    getGeoData();
+
     if (!_isRunning) {
       _isRunning = true;
       _seconds = 0;
+      _totalDistance = 0.0;
+      _caloriesBurned = 0.0;
       int locationUpdateCounter = 0;
       _timer = Timer.periodic(Duration(seconds: 1), (timer) {
         if (!_isPaused) {
           setState(() {
             _seconds++;
+            _isStarted = true; // 시작 후에는 true로 설정
           });
 
           locationUpdateCounter++;
@@ -138,16 +210,29 @@ class _GpsMapState extends State<_GpsMap> {
             getGeoData(); // 위치 업데이트
             polylineCoordinates.add(LatLng(double.parse(lat!), double.parse(lng!)));
             _updatePolyline(); // 폴리라인 업데이트 추가
+            _updateMarker(); // 마커 업데이트
+
+            // 거리 및 칼로리 계산
+            _totalDistance = _calculatePolylineLength(polylineCoordinates);
+            _caloriesBurned = _calculateCalories(_totalDistance, _weight);
           }
         }
       });
+
+      // 운동 시작 시 출발 지점 마커 설정
+      _startMarker();
     }
   }
+
+
+
+
 
   void _stopTimer() {
     if (_isRunning) {
       _timer.cancel();
       _isRunning = false;
+      _showSummaryDialog();
     }
   }
 
@@ -171,6 +256,21 @@ class _GpsMapState extends State<_GpsMap> {
     super.dispose();
   }
 
+  // 사용자의 현재 위치로 카메라를 이동하는 함수
+  void _moveToCurrentLocation() async {
+    // 사용자의 현재 위치를 얻어옵니다.
+    Position position = await Geolocator.getCurrentPosition();
+    // 현재 위치로 카메라를 이동합니다.
+    mapController.animateCamera(
+      CameraUpdate.newLatLngZoom(
+        LatLng(position.latitude, position.longitude),
+        15.0,
+      ),
+    );
+  }
+
+
+
   //시간 계산
   String _formatTime(int seconds) {
     final int minutes = seconds ~/ 60;
@@ -190,7 +290,7 @@ class _GpsMapState extends State<_GpsMap> {
       double endLatitude = points[i + 1].latitude;
       double endLongitude = points[i + 1].longitude;
 
-      double distance = _coordinateDistance(
+      double distance = Geolocator.distanceBetween(
           startLatitude, startLongitude, endLatitude, endLongitude);
 
       totalDistance += distance;
@@ -199,24 +299,106 @@ class _GpsMapState extends State<_GpsMap> {
     return totalDistance;
   }
 
-  // 두 지점 간의 직선 거리 계산
-  double _coordinateDistance(double startLat, double startLng, double endLat, double endLng) {
-    const double radius = 6371000; // 지구 반지름 (미터)
-
-    double lat1 = startLat * pi / 180.0;
-    double lon1 = startLng * pi / 180.0;
-    double lat2 = endLat * pi / 180.0;
-    double lon2 = endLng * pi / 180.0;
-
-    double dLat = lat2 - lat1;
-    double dLon = lon2 - lon1;
-
-    double a = sin(dLat / 2) * sin(dLat / 2) +
-        cos(lat1) * cos(lat2) * sin(dLon / 2) * sin(dLon / 2);
-    double c = 2 * atan2(sqrt(a), sqrt(1 - a));
-
-    return radius * c; // 직선 거리 반환
+  // 칼로리 계산
+  double _calculateCalories(double distance, double weight) {
+    const double caloriesPerKmPerKg = 0.57;
+    return distance / 1000 * weight * caloriesPerKmPerKg;
   }
+
+  void _showSummaryDialog() {
+    // 선택된 라디오 버튼 값을 저장하는 변수
+    String? selectedValue;
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('오늘의 운동'),
+          content: SingleChildScrollView(
+            physics: ClampingScrollPhysics(), // 스크롤 동작 설정
+            child: StatefulBuilder(
+              builder: (BuildContext context, StateSetter setState) {
+                return Column(
+                  mainAxisSize: MainAxisSize.min, // 최소한의 세로 공간 사용
+                  crossAxisAlignment: CrossAxisAlignment.start, // 왼쪽 정렬
+                  children: [
+                    Text('시간: ${_formatTime(_seconds)}'),
+                    Text('거리: ${_totalDistance.toStringAsFixed(2)} m'),
+                    Text('칼로리: ${_caloriesBurned.toStringAsFixed(2)} kcal'),
+                    // 라디오 버튼 추가
+                    Row(
+                      children: [
+                        Flexible(child:
+                          RadioListTile<String>(
+                            title: Text('좋음'),
+                            value: '좋음',
+                            groupValue: selectedValue,
+                            onChanged: (value) {
+                              setState(() {
+                                selectedValue = value;
+                              });
+                            },
+                          ),
+                        ),
+                        Flexible(child:
+                          RadioListTile<String>(
+                            title: Text('보통'),
+                            value: '보통',
+                            groupValue: selectedValue,
+                            onChanged: (value) {
+                              setState(() {
+                                selectedValue = value;
+                              });
+                            },
+                          ),
+                        ),
+                        Flexible(child:
+                          RadioListTile<String>(
+                            title: Text('나쁨'),
+                            value: '나쁨',
+                            groupValue: selectedValue,
+                            onChanged: (value) {
+                              setState(() {
+                                selectedValue = value;
+                              });
+                            },
+                          )
+                        ),
+                      ],
+                    ),
+                    // 텍스트 입력란 추가
+                    TextField(
+                      decoration: InputDecoration(
+                        hintText: '메모',
+                      ),
+                      onChanged: (value) {
+                        // 입력된 텍스트를 저장
+                        setState(() {
+                          selectedValue = value;
+                        });
+                      },
+                    ),
+                  ],
+                );
+              },
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: Text('저장'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+
+
+
 
   //////////////////////////////////////빌드빌드빌드빌드/////////////////////////////////////////
   @override
@@ -253,7 +435,7 @@ class _GpsMapState extends State<_GpsMap> {
                   ),
                   Center(
                     child: Text(
-                      '${_calculatePolylineLength(polylineCoordinates).toStringAsFixed(2)}m',
+                      '${_totalDistance.toStringAsFixed(2)}m',
                       style: TextStyle(fontSize: 18),
                     ),
                   ),
@@ -261,6 +443,12 @@ class _GpsMapState extends State<_GpsMap> {
                     child: Text(
                       '${_formatTime(_seconds)}',
                       style: TextStyle(fontSize: 24),
+                    ),
+                  ),
+                  Center(
+                    child: Text(
+                      'Calories Burned: ${_caloriesBurned.toStringAsFixed(2)}',
+                      style: TextStyle(fontSize: 18),
                     ),
                   ),
                   Row(
@@ -283,13 +471,11 @@ class _GpsMapState extends State<_GpsMap> {
                       ),
                       if (_isRunning && !_isPaused) Expanded( // 시작 후에 일시정지하지 않은 경우만 보이는 버튼
                         child: TextButton(
-                            child: Icon(Icons.pause, color: Colors.red),
-                            onPressed: (){
-                              _pauseTimer();
-                            }
+                          child: Icon(Icons.pause, color: Colors.red),
+                          onPressed: _pauseTimer,
                         ),
                       ),
-                      if (_isPaused && _isRunning) Expanded( // 일시정지 후에만 보이는 버튼
+                      if (_isRunning && _isPaused) Expanded( // 일시정지된 경우 보이는 버튼
                         child: TextButton(
                           child: Icon(Icons.play_arrow, color: Colors.red),
                           onPressed: _resumeTimer,
