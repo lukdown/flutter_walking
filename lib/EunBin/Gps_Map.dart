@@ -1,8 +1,12 @@
 import 'dart:math';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'dart:async';
+import 'RecordVo.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -29,6 +33,9 @@ class _GpsMap extends StatefulWidget {
 }
 
 class _GpsMapState extends State<_GpsMap> {
+  final storage = const FlutterSecureStorage();
+
+
   late GoogleMapController mapController;
   late Timer _timer;
 
@@ -271,12 +278,14 @@ class _GpsMapState extends State<_GpsMap> {
 
 
 
-  //시간 계산
+  // 시간 계산
   String _formatTime(int seconds) {
-    final int minutes = seconds ~/ 60;
+    final int hours = seconds ~/ 3600;
+    final int minutes = (seconds % 3600) ~/ 60;
     final int remainingSeconds = seconds % 60;
-    return '${minutes.toString().padLeft(2, '0')}:${remainingSeconds.toString().padLeft(2, '0')}';
+    return '${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}:${remainingSeconds.toString().padLeft(2, '0')}';
   }
+
 
   //---------------------------------------------------------------------------//
 
@@ -313,7 +322,8 @@ class _GpsMapState extends State<_GpsMap> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('오늘의 운동'),
+          title: Text('오늘의 운동', style: TextStyle(fontFamily:
+          "Cafe24Ssurround-Bold", fontSize: 18, color: Color(0xff16517b)),),
           content: SingleChildScrollView(
             physics: ClampingScrollPhysics(), // 스크롤 동작 설정
             child: StatefulBuilder(
@@ -322,15 +332,19 @@ class _GpsMapState extends State<_GpsMap> {
                   mainAxisSize: MainAxisSize.min, // 최소한의 세로 공간 사용
                   crossAxisAlignment: CrossAxisAlignment.start, // 왼쪽 정렬
                   children: [
-                    Text('시간: ${_formatTime(_seconds)}'),
-                    Text('거리: ${_totalDistance.toStringAsFixed(2)} m'),
-                    Text('칼로리: ${_caloriesBurned.toStringAsFixed(2)} kcal'),
+                    Text('시간: ${_formatTime(_seconds)}', style: TextStyle(fontFamily:
+                    "Cafe24Ssurround-Regular", fontSize: 13)),
+                    Text('거리: ${_totalDistance.toStringAsFixed(2)} m', style: TextStyle(fontFamily:
+                    "Cafe24Ssurround-Regular", fontSize: 13)),
+                    Text('칼로리: ${_caloriesBurned.toStringAsFixed(2)} kcal', style: TextStyle(fontFamily:
+                    "Cafe24Ssurround-Regular", fontSize: 13)),
                     // 라디오 버튼 추가
                     Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly, // 자식 위젯 사이의 간격을 균등하게 배치
                       children: [
-                        Flexible(child:
-                          RadioListTile<String>(
-                            title: Text('좋음'),
+                        Flexible(
+                          child: RadioListTile<String>(
+                            title: Text('😊', style: TextStyle(fontSize: 25)),
                             value: '좋음',
                             groupValue: selectedValue,
                             onChanged: (value) {
@@ -340,9 +354,9 @@ class _GpsMapState extends State<_GpsMap> {
                             },
                           ),
                         ),
-                        Flexible(child:
-                          RadioListTile<String>(
-                            title: Text('보통'),
+                        Flexible(
+                          child: RadioListTile<String>(
+                            title: Text('🙂', style: TextStyle(fontSize: 25)),
                             value: '보통',
                             groupValue: selectedValue,
                             onChanged: (value) {
@@ -352,9 +366,9 @@ class _GpsMapState extends State<_GpsMap> {
                             },
                           ),
                         ),
-                        Flexible(child:
-                          RadioListTile<String>(
-                            title: Text('나쁨'),
+                        Flexible(
+                          child: RadioListTile<String>(
+                            title: Text('☹️', style: TextStyle(fontSize: 25)),
                             value: '나쁨',
                             groupValue: selectedValue,
                             onChanged: (value) {
@@ -362,14 +376,16 @@ class _GpsMapState extends State<_GpsMap> {
                                 selectedValue = value;
                               });
                             },
-                          )
+                          ),
                         ),
                       ],
                     ),
+
                     // 텍스트 입력란 추가
                     TextField(
                       decoration: InputDecoration(
                         hintText: '메모',
+                        hintStyle: TextStyle(fontFamily: 'YourFontFamily'),
                       ),
                       onChanged: (value) {
                         // 입력된 텍스트를 저장
@@ -378,6 +394,7 @@ class _GpsMapState extends State<_GpsMap> {
                         });
                       },
                     ),
+
                   ],
                 );
               },
@@ -385,12 +402,32 @@ class _GpsMapState extends State<_GpsMap> {
           ),
           actions: <Widget>[
             TextButton(
-              child: Text('저장'),
+              style: ButtonStyle(
+                backgroundColor: MaterialStateProperty.all<Color>(Color(0xFF068CD2)), // 배경색
+                shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                  RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20.0), // 버튼의 둥근 모서리 설정
+                  ),
+                ),
+              ),
+              child: Text(
+                '저장',
+                style: TextStyle(
+                  fontFamily: "Cafe24Ssurround-Regular",
+                  fontSize: 18,
+                  color: Colors.white, // 글자색을 흰색으로 설정
+                ),
+              ),
               onPressed: () {
                 Navigator.of(context).pop();
               },
             ),
           ],
+          elevation: 10.0,
+          backgroundColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(32)),
+          ),
         );
       },
     );
@@ -403,12 +440,17 @@ class _GpsMapState extends State<_GpsMap> {
   //////////////////////////////////////빌드빌드빌드빌드/////////////////////////////////////////
   @override
   Widget build(BuildContext context) {
+    // ModalRoute를 통해 현재 페이지에 전달된 arguments를 가져옵니다.
+    //final args = ModalRoute.of(context)!.settings.arguments as Map;
+
+    // 'personId' 키를 사용하여 값을 추출합니다.
+    //final login_users_no = args['login_users_no'];
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
           title: Center(
             child: Text('걸음걸음', style: TextStyle(
-                fontSize: 20, fontWeight: FontWeight.w700, color: Color(0xffffffff))),
+                fontSize: 20, fontWeight: FontWeight.w700, color: Color(0xffffffff), fontFamily: "Cafe24Ssurround-Bold")),
           ),
           backgroundColor: Color(0xff068cd2),
         ),
@@ -435,20 +477,22 @@ class _GpsMapState extends State<_GpsMap> {
                   ),
                   Center(
                     child: Text(
-                      '${_totalDistance.toStringAsFixed(2)}m',
-                      style: TextStyle(fontSize: 18),
-                    ),
-                  ),
-                  Center(
-                    child: Text(
                       '${_formatTime(_seconds)}',
-                      style: TextStyle(fontSize: 24),
+                      style: TextStyle(fontSize: 24, fontFamily: "Cafe24Ssurround-Bold"),
                     ),
                   ),
                   Center(
                     child: Text(
-                      'Calories Burned: ${_caloriesBurned.toStringAsFixed(2)}',
-                      style: TextStyle(fontSize: 18),
+                      '${_totalDistance.toStringAsFixed(2)}m',
+                      style: TextStyle(fontSize: 18, fontFamily:
+                      "Cafe24Ssurround-Regular"),
+                    ),
+                  ),
+                  Center(
+                    child: Text(
+                      '${_caloriesBurned.toStringAsFixed(2)} kcal',
+                      style: TextStyle(fontSize: 18, fontFamily:
+                      "Cafe24Ssurround-Regular"),
                     ),
                   ),
                   Row(
@@ -492,3 +536,48 @@ class _GpsMapState extends State<_GpsMap> {
     );
   }
 }
+
+/*
+Future<void> recordDraw(RecordVo recordVo) async {
+
+  var users_no = await storage.read(key: 'UserNo');
+  try {
+    /*----요청처리-------------------*/
+    //Dio 객체 생성 및 설정
+    var dio = Dio();
+
+    // 헤더설정:json으로 전송
+    dio.options.headers['Content-Type'] = 'application/json';
+
+
+    // 서버 요청
+    final response = await dio.post(
+      'http://localhost:9020/api/walking/recorddraw',
+
+      data: {
+        // 예시 data  map->json자동변경
+        'users_no': recordVo.users_no,
+        'course_no': recordVo.course_no,
+        'record_time': recordVo.record_time,
+        'record_length': recordVo.record_length,
+        'record_kcal': recordVo.record_kcal,
+        'record_vibe': recordVo.record_vibe,
+        'record_memo': recordVo.record_memo,
+      },
+
+    );
+
+    /*----응답처리-------------------*/
+    if (response.statusCode == 200) {
+      //접속성공 200 이면
+      print(response.data); // json->map 자동변경
+    } else {
+      //접속실패 404, 502등등 api서버 문제
+      throw Exception('api 서버 문제');
+    }
+  } catch (e) {
+    //예외 발생
+    throw Exception('Failed to load person: $e');
+  }
+}
+*/
