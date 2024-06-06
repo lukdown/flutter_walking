@@ -65,7 +65,14 @@ flutter:
   assets:
     - assets/images/
 
-  #   - images/a_dot_ham.jpeg
+  fonts:
+     - family: Cafe24Ssurround-Bold
+       fonts:
+         - asset: assets/fonts/Cafe24Ssurround-v2.0.ttf
+     - family: Cafe24Ssurround-Regular
+       fonts:
+         - asset: assets/fonts/Cafe24SsurroundAir-v1.1.ttf
+
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

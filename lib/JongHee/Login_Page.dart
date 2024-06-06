@@ -11,7 +11,6 @@ class Login_page extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(),
       body: Container(
         child: _Login_Page(),
       )
@@ -42,6 +41,7 @@ class _LoginPageState extends State<_Login_Page> {
   @override
   Widget build(BuildContext context) {
     return Container(
+      color: Color(0xFFffffff),
       child: Center(
         child: Column(
           children: [
@@ -51,6 +51,7 @@ class _LoginPageState extends State<_Login_Page> {
                 style: TextStyle(
                   fontSize: 80,
                   color: Color(0xFF068cd2),
+                  fontFamily: "Cafe24Ssurround-Bold"
                 ),
               ),
             ),
@@ -59,6 +60,7 @@ class _LoginPageState extends State<_Login_Page> {
                 style: TextStyle(
                   fontSize: 50,
                   color: Color(0xFF068cd2),
+                  fontFamily: "Cafe24Ssurround-Bold"
                 ),
               ),
             ),
@@ -67,7 +69,8 @@ class _LoginPageState extends State<_Login_Page> {
               child: Text("ID",
                 style: TextStyle(
                   fontSize: 40,
-                  color: Color(0xFF068cd2)
+                  color: Color(0xFF068cd2),
+                    fontFamily: "Cafe24Ssurround-Bold"
                 )
               ),
             ),
@@ -79,7 +82,7 @@ class _LoginPageState extends State<_Login_Page> {
                   borderRadius:BorderRadius.circular(20)
               ),
               child: TextFormField(
-                style: TextStyle(fontSize: 15,color: Color(0xFFffffff),),
+                style: TextStyle(fontSize: 15,color: Color(0xFFffffff),fontFamily: "Cafe24Ssurround-Regular"),
                 controller: _idController,
                 decoration: InputDecoration(
                   border:InputBorder.none
@@ -91,7 +94,8 @@ class _LoginPageState extends State<_Login_Page> {
               child: Text("PW",
                   style: TextStyle(
                       fontSize: 40,
-                      color: Color(0xFF068cd2)
+                      color: Color(0xFF068cd2),
+                      fontFamily: "Cafe24Ssurround-Bold"
                   )
               ),
             ),
@@ -103,13 +107,14 @@ class _LoginPageState extends State<_Login_Page> {
                   borderRadius:BorderRadius.circular(20)
               ),
               child: TextFormField(
-                style: TextStyle(fontSize: 15,color: Color(0xFFffffff),),
+                style: TextStyle(fontSize: 15,color: Color(0xFFffffff),fontFamily: "Cafe24Ssurround-Regular"),
                 controller: _pwController,
                 decoration: InputDecoration(
                     border:InputBorder.none
                 ),
               ),
             ),
+
             Container(
               width: 150,
               height: 50,
@@ -125,11 +130,13 @@ class _LoginPageState extends State<_Login_Page> {
                 child: Text("Login",
                   style: TextStyle(
                     fontSize: 30,
-                    color: Color(0xFFffffff)
+                    color: Color(0xFFffffff),
+                      fontFamily: "Cafe24Ssurround-Bold"
                   ),
                 ),
               ),
             ),
+            /*
             Container(
               width: 150,
               height: 50,
@@ -145,31 +152,13 @@ class _LoginPageState extends State<_Login_Page> {
                 child: Text("test",
                   style: TextStyle(
                       fontSize: 30,
-                      color: Color(0xFFffffff)
+                      color: Color(0xFFffffff),
+                      fontFamily: "Cafe24Ssurround-Bold"
                   ),
                 ),
               ),
             ),
-            Container(
-              width: 150,
-              height: 50,
-              margin: EdgeInsets.only(top: 50),
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xFF068cd2),
-                    padding: EdgeInsets.only(bottom: 15)
-                ),
-                onPressed: (){
-                  testlogout(storage);
-                },
-                child: Text("testlogout",
-                  style: TextStyle(
-                      fontSize: 30,
-                      color: Color(0xFFffffff)
-                  ),
-                ),
-              ),
-            )
+            */
           ],
 
         ),
