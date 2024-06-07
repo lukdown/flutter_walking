@@ -232,7 +232,7 @@ Future<void> getUserData(storage, String id, String password, BuildContext conte
     throw Exception('Failed to load person: $e');
   }
 }
-
+/*
 Future<void> test(storage)async{
   String xxx = await storage.read(key: 'UserToken');
   //print(xxx);
@@ -248,3 +248,4 @@ Future<void> testlogout(storage)async{
   await storage.delete(key: 'UserNo');
 
 }
+*/
