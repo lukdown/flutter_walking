@@ -3,6 +3,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'home.dart';
 import 'JongHee/Login_Page.dart';
 import 'EunBin/Gps_Map.dart';
+import 'EunBin/Course_Gps_Map.dart';
 import 'YounSoo/Course_List.dart';
 
 
@@ -34,6 +35,7 @@ class MyApp extends StatelessWidget {
         "/login": (context) => Login_page(),
         "/course_list": (context) => Course_List(),
         "/gps_map": (context) => GpsMap(),
+        "/course_gps_map": (context) => CourseGpsMap(),
       }
     );
   }

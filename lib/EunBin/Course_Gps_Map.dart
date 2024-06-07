@@ -10,29 +10,30 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  runApp(GpsMap());
+  runApp(CourseGpsMap());
 }
 
-class GpsMap extends StatelessWidget {
+class CourseGpsMap extends StatelessWidget {
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: _GpsMap(),
+      home: _CourseGpsMap(),
     );
   }
 }
 
-class _GpsMap extends StatefulWidget {
-  const _GpsMap({Key? key}) : super(key: key);
+class _CourseGpsMap extends StatefulWidget {
+  const _CourseGpsMap({Key? key}) : super(key: key);
 
   @override
-  _GpsMapState createState() => _GpsMapState();
+  _CourseGpsMapState createState() => _CourseGpsMapState();
 }
 
-class _GpsMapState extends State<_GpsMap> {
+class _CourseGpsMapState extends State<_CourseGpsMap> {
   final storage = const FlutterSecureStorage();
 
   late GoogleMapController mapController;
@@ -435,13 +436,13 @@ class _GpsMapState extends State<_GpsMap> {
               onPressed: () {
                 // 선택된 값과 메모를 recordVo에 저장
                 RecordVo recordVo = RecordVo(
-                    users_no: users_no,
-                    course_no: 1,
-                    record_time: _formatTime(_seconds),
-                    record_length: double.parse(_totalDistance.toStringAsFixed(2)),
-                    record_kcal: _caloriesBurned.floor(),
-                    record_vibe: selectedValue ?? '',
-                    record_memo: memo ?? '',
+                  users_no: users_no,
+                  course_no: 1,
+                  record_time: _formatTime(_seconds),
+                  record_length: double.parse(_totalDistance.toStringAsFixed(2)),
+                  record_kcal: _caloriesBurned.floor(),
+                  record_vibe: selectedValue ?? '',
+                  record_memo: memo ?? '',
                 );
 
                 recordDraw(recordVo);
@@ -563,7 +564,7 @@ Future<void> recordDraw(RecordVo recordVo) async {
 
 
   print(recordVo);
-  
+
   try {
     /*----요청처리-------------------*/
     //Dio 객체 생성 및 설정
