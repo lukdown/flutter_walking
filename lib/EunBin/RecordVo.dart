@@ -9,8 +9,6 @@ class RecordVo {
   int record_kcal;
   String record_vibe;
   String record_memo;
-  List<Record_Point_Vo> recordPointList;
-
 
   //생성자
   RecordVo({
@@ -21,7 +19,6 @@ class RecordVo {
     required this.record_kcal,
     required this.record_vibe,
     required this.record_memo,
-    required this.recordPointList,
   });
 
   //map--> personVo형식으로 변환
@@ -34,7 +31,6 @@ class RecordVo {
       record_kcal: apiData['record_kcal'],
       record_vibe: apiData['record_vibe'],
       record_memo: apiData['record_memo'],
-      recordPointList: apiData['recordPointList'],
     );
   }
 
@@ -48,12 +44,11 @@ class RecordVo {
       'record_kcal': record_kcal,
       'record_vibe': record_vibe,
       'record_memo': record_memo,
-      'recordPointList': recordPointList,
     };
   }
 
   @override
   String toString() {
-    return 'RecordVo{users_no: $users_no, course_no: $course_no, record_time: $record_time, record_length: $record_length, record_kcal: $record_kcal, record_vibe: $record_vibe, record_memo: $record_memo, recordPointList: $recordPointList}';
+    return 'RecordVo{users_no: $users_no, course_no: $course_no, record_time: $record_time, record_length: $record_length, record_kcal: $record_kcal, record_vibe: $record_vibe, record_memo: $record_memo}';
   }
 }

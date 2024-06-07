@@ -57,6 +57,11 @@ class _GpsMapState extends State<_CourseGpsMap> {
   bool _isStarted = false; // 시작 상태를 저장하는 변수를 추가합니다.
   late double _currentZoomLevel = 15.0; // 기본 확대/축소 레벨을 설정합니다.
   int users_no = 0;
+
+  List<Record_Point_Vo> recordPointList = [];
+
+
+
   @override
   void initState() {
     super.initState();
@@ -114,6 +119,25 @@ class _GpsMapState extends State<_CourseGpsMap> {
     print("user_nouser_nouser_nouser_nouser_nouser_nouser_no");
     users_no = int.tryParse(await storage.read(key: 'UserNo') ?? '') ?? 0;
   }
+
+  void getPointList() {
+
+    for (int i = 0; i < polylineCoordinates.length; i++) {
+      // 각 좌표의 위도와 경도를 Record_Point_Vo로 변환하여 recordPointList 추가
+      Record_Point_Vo pointVo = Record_Point_Vo(
+        record_latitude: polylineCoordinates[i].latitude,
+        record_longitude: polylineCoordinates[i].longitude,
+      );
+      recordPointList.add(pointVo);
+      print("testtesttesttesttesttesttesttesttesttesttesttesttesttesttesttest");
+      print(polylineCoordinates[i].latitude);
+      print(polylineCoordinates[i].longitude);
+      print("testtesttesttesttesttesttesttesttesttesttesttesttesttesttesttest");
+    }
+
+    // recordPointList 사용 가능
+  }
+
 
   //마커 출발점에서 찍기
   void _startMarker(){
@@ -217,6 +241,7 @@ class _GpsMapState extends State<_CourseGpsMap> {
         if (!_isPaused) {
           setState(() {
             _seconds++;
+            _markers.clear();
             _isStarted = true; // 시작 후에는 true로 설정
           });
 
@@ -443,12 +468,10 @@ class _GpsMapState extends State<_CourseGpsMap> {
                   record_kcal: _caloriesBurned.floor(),
                   record_vibe: selectedValue ?? '',
                   record_memo: memo ?? '',
-                  recordPointList: polylineCoordinates.map((point) => Record_Point_Vo(
-                      record_latitude: point.latitude, record_longitude: point.longitude)
-                  ).toList(),
                 );
-
-                recordDraw(recordVo);
+                getPointList();
+                recordDraw(recordVo, recordPointList);
+                Navigator.pushNamed(context, "/");
               },
             ),
           ],
@@ -563,9 +586,9 @@ class _GpsMapState extends State<_CourseGpsMap> {
 }
 
 
-Future<void> recordDraw(RecordVo recordVo) async {
+Future<void> recordDraw(RecordVo recordVo, recordPointList) async {
 
-
+  print(recordPointList);
   print(recordVo);
 
   try {
@@ -576,22 +599,16 @@ Future<void> recordDraw(RecordVo recordVo) async {
     // 헤더설정:json으로 전송
     dio.options.headers['Content-Type'] = 'application/json';
 
+    Map<String, dynamic> data = {
+      'recordPointList': recordPointList,
+      'recordVo': recordVo
+    };
 
     // 서버 요청
     final response = await dio.post(
       'http://localhost:9020/api/walking/recorddraw',
 
-      data: {
-        // 예시 data  map->json자동변경
-        'users_no': recordVo.users_no,
-        'course_no': recordVo.course_no,
-        'record_time': recordVo.record_time,
-        'record_length': recordVo.record_length,
-        'record_kcal': recordVo.record_kcal.toString(), // 문자열로 변환
-        'record_vibe': recordVo.record_vibe,
-        'record_memo': recordVo.record_memo,
-        'recordPointList': recordVo.recordPointList,
-      },
+      data: data,
 
     );
 
