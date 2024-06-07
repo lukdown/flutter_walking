@@ -18,22 +18,18 @@ void main() {
 class CourseGpsMap extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final Map arguments = ModalRoute.of(context)?.settings.arguments as Map;
-    final int course_no = int.parse(arguments['course_no']);
     return MaterialApp(
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: _CourseGpsMap(course_no: course_no),
+      home: _CourseGpsMap(),
 
     );
   }
 }
 
 class _CourseGpsMap extends StatefulWidget {
-  final int course_no;
-
-  const _CourseGpsMap({Key? key, required this.course_no}) : super(key: key);
+  const _CourseGpsMap({Key? key}) : super(key: key);
 
   @override
   _GpsMapState createState() => _GpsMapState();
@@ -74,8 +70,6 @@ class _GpsMapState extends State<_CourseGpsMap> {
   @override
   void initState() {
     super.initState();
-    print('Course Number: ${widget.course_no}');
-
     _loadMarkerIcons();
     getGeoData();
     getUsersNo(storage);
@@ -476,7 +470,7 @@ class _GpsMapState extends State<_CourseGpsMap> {
                 // 선택된 값과 메모를 recordVo에 저장
                 RecordVo recordVo = RecordVo(
                   users_no: users_no,
-                  course_no: widget.course_no,
+                  course_no: 1,
                   record_time: _formatTime(_seconds),
                   record_length: double.parse(_totalDistance.toStringAsFixed(2)),
                   record_kcal: _caloriesBurned.floor(),
@@ -506,8 +500,13 @@ class _GpsMapState extends State<_CourseGpsMap> {
   @override
   Widget build(BuildContext context) {
     final Map arguments = ModalRoute.of(context)?.settings.arguments as Map;
-    final int course_no = int.parse(arguments['course_no']);
+    final int course_no = int.parse(arguments['course_no'].toString());
+    print("-------------------------");
+    print(course_no);
+
+
     LebListFuture = getCoursePointList(course_no);
+    print(LebListFuture);
     return FutureBuilder(
         future: LebListFuture, //Future<> 함수명, 으로 받은 데이타
         builder: (context, snapshot) {
@@ -625,6 +624,9 @@ class _GpsMapState extends State<_CourseGpsMap> {
 
 //Course 그리기
   Future<List<Course_Point_Vo>> getCoursePointList(int course_no) async {
+    print("getCoursePointList(): 데이터 가져오기 중");
+    print(course_no);
+
     try {
       /*----요청처리-------------------*/
       //Dio 객체 생성 및 설정
@@ -635,12 +637,7 @@ class _GpsMapState extends State<_CourseGpsMap> {
 
       // 서버 요청
       final response = await dio.post(
-        'http://localhost:9020/api/walking/coursebook/point',
-
-        data: {
-          // 예시 data  map->json자동변경
-          'course_no': course_no, //총 결제 금액
-        },
+        'http://localhost:9020/api/walking/coursebook/point/${course_no}',
       );
 
       /*----응답처리-------------------*/

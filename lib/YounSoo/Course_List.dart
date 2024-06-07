@@ -111,7 +111,7 @@ class _Course_ListState extends State<_Course_List> {
   final storage = const FlutterSecureStorage();
 
   // 라우터
-  late final args = ModalRoute.of(context)!.settings.arguments as Map;
+  /*late final args = ModalRoute.of(context)!.settings.arguments as Map;*/
 
   // 공통 변수
   //var login_users_no2 = 0;
@@ -401,12 +401,13 @@ class _Course_ListState extends State<_Course_List> {
                                           backgroundColor: Color(0xFF068cd2),
                                         ),
                                         onPressed: () {
+                                          print("--------------------------------");
+                                          print("${snapshot.data![index].course_no}");
                                           Navigator.pushNamed(
                                             context,
-                                            '/course_gps_map',
+                                            '/coursegpsmap',
                                             arguments: {
-                                              "course_no":
-                                                  snapshot.data![index].course_no,
+                                              "course_no": snapshot.data![index].course_no
                                             },
                                           );
                                           //getUserData(storage,_idController.text, _pwController.text, context);
@@ -973,14 +974,16 @@ class _Course_ListState extends State<_Course_List> {
                                           backgroundColor: Color(0xFF068cd2),
                                         ),
                                         onPressed: () {
-                                          Navigator.pushNamed(
+                                          print("-----------------------------------------");
+                                          print("${snapshot.data![index].course_no}");
+                                          /*Navigator.pushNamed(
                                             context,
                                             '/course_gps_map',
                                             arguments: {
                                               "course_no":
                                               "${snapshot.data![index].course_no}",
                                             },
-                                          );
+                                          );*/
                                           //getUserData(storage,_idController.text, _pwController.text, context);
                                         },
                                         child: Text(
@@ -1055,7 +1058,8 @@ class _Course_ListState extends State<_Course_List> {
           courseList.add(course_list_Vo);
           //print(courseList[i].write_users_no);
         }
-        //print(courseList);
+        print(courseList);
+
         return courseList;
       } else {
         //접속실패 404, 502등등 api서버 문제

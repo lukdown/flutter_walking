@@ -35,7 +35,8 @@ class MyApp extends StatelessWidget {
         "/login": (context) => Login_page(),
         "/course_list": (context) => Course_List(),
         "/gps_map": (context) => GpsMap(),
-        "/course_gps_map": (context) => CourseGpsMap(),
+        "/coursegpsmap": (context) => CourseGpsMap(),
+
       }
     );
   }
