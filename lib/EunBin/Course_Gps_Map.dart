@@ -6,6 +6,7 @@ import 'package:geolocator/geolocator.dart';
 import 'dart:async';
 import 'RecordVo.dart';
 import 'Record_Point_Vo.dart';
+import 'Course_Point_Vo.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 
@@ -17,27 +18,36 @@ void main() {
 class CourseGpsMap extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final Map arguments = ModalRoute.of(context)?.settings.arguments as Map;
+    final int course_no = int.parse(arguments['course_no']);
     return MaterialApp(
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: _CourseGpsMap(),
+      home: _CourseGpsMap(course_no: course_no),
+
     );
   }
 }
 
 class _CourseGpsMap extends StatefulWidget {
-  const _CourseGpsMap({Key? key}) : super(key: key);
+  final int course_no;
+
+  const _CourseGpsMap({Key? key, required this.course_no}) : super(key: key);
 
   @override
   _GpsMapState createState() => _GpsMapState();
 }
 
 class _GpsMapState extends State<_CourseGpsMap> {
+
   final storage = const FlutterSecureStorage();
 
   late GoogleMapController mapController;
   late Timer _timer;
+
+  //코스 리스트
+  late Future<List<Course_Point_Vo>> LebListFuture;
 
   final LatLng _center = const LatLng(0, 0);
   String? lat;
@@ -58,13 +68,14 @@ class _GpsMapState extends State<_CourseGpsMap> {
   late double _currentZoomLevel = 15.0; // 기본 확대/축소 레벨을 설정합니다.
   int users_no = 0;
 
-  List<Record_Point_Vo> recordPointList = [];
-
+  List<Record_Point_Vo> recordPointList = []; //기록 좌표
 
 
   @override
   void initState() {
     super.initState();
+    print('Course Number: ${widget.course_no}');
+
     _loadMarkerIcons();
     getGeoData();
     getUsersNo(storage);
@@ -80,6 +91,9 @@ class _GpsMapState extends State<_CourseGpsMap> {
     });
     _updateMarker();
   }
+
+
+  //Course_point 가져와서 그리기
 
   // Load custom marker icons
   void _loadMarkerIcons() async {
@@ -462,7 +476,7 @@ class _GpsMapState extends State<_CourseGpsMap> {
                 // 선택된 값과 메모를 recordVo에 저장
                 RecordVo recordVo = RecordVo(
                   users_no: users_no,
-                  course_no: 1,
+                  course_no: widget.course_no,
                   record_time: _formatTime(_seconds),
                   record_length: double.parse(_totalDistance.toStringAsFixed(2)),
                   record_kcal: _caloriesBurned.floor(),
@@ -491,137 +505,213 @@ class _GpsMapState extends State<_CourseGpsMap> {
   //////////////////////////////////////빌드빌드빌드빌드/////////////////////////////////////////
   @override
   Widget build(BuildContext context) {
-
-    return MaterialApp(
-      home: Scaffold(
-        appBar: AppBar(
-          title: Center(
-            child: Text('걸음걸음', style: TextStyle(
-                fontSize: 20, fontWeight: FontWeight.w700, color: Color(0xffffffff), fontFamily: "Cafe24Ssurround-Bold")),
-          ),
-          backgroundColor: Color(0xff068cd2),
-        ),
-        body: Column(
-          children: [
-            Expanded(
-              child: GoogleMap(
-                onMapCreated: _onMapCreated,
-                initialCameraPosition: CameraPosition(
-                  target: _center,
-                  zoom: 15.0,
-                ),
-                markers: _markers,
-                polylines: _polylines,
-              ),
-            ),
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(8.0),
-              color: Color(0xFFffffff),
-              child: Column(
-                children: [
-                  Center(
-                    child: Text("Lat: $lat, Lng: $lng"),
-                  ),
-                  Center(
-                    child: Text(
-                      '${_formatTime(_seconds)}',
-                      style: TextStyle(fontSize: 24, fontFamily: "Cafe24Ssurround-Bold"),
+    final Map arguments = ModalRoute.of(context)?.settings.arguments as Map;
+    final int course_no = int.parse(arguments['course_no']);
+    LebListFuture = getCoursePointList(course_no);
+    return FutureBuilder(
+        future: LebListFuture, //Future<> 함수명, 으로 받은 데이타
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(child: Text('데이터를 불러오는 데 실패했습니다.'));
+          } else if (!snapshot.hasData) {
+            return Center(child: Text('데이터가 없습니다.'));
+          } else {
+            return Container(
+              child: MaterialApp(
+                home: Scaffold(
+                  appBar: AppBar(
+                    title: Center(
+                      child: Text('걸음걸음', style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w700,
+                          color: Color(0xffffffff),
+                          fontFamily: "Cafe24Ssurround-Bold")),
                     ),
+                    backgroundColor: Color(0xff068cd2),
                   ),
-                  Center(
-                    child: Text(
-                      '${_totalDistance.toStringAsFixed(2)}m',
-                      style: TextStyle(fontSize: 18, fontFamily:
-                      "Cafe24Ssurround-Regular"),
-                    ),
-                  ),
-                  Center(
-                    child: Text(
-                      '${_caloriesBurned.toStringAsFixed(2)} kcal',
-                      style: TextStyle(fontSize: 18, fontFamily:
-                      "Cafe24Ssurround-Regular"),
-                    ),
-                  ),
-                  Row(
+                  body: Column(
                     children: [
-                      if (!_isRunning) Expanded( // 시작 전에만 보이는 버튼
-                        child: TextButton(
-                            child: Icon(Icons.play_arrow, color: Colors.red),
-                            onPressed: (){
-                              _startTimer();
-                              // 기존 폴리라인 삭제
-                              _polylines.clear();
-                            }
+                      Expanded(
+                        child: GoogleMap(
+                          onMapCreated: _onMapCreated,
+                          initialCameraPosition: CameraPosition(
+                            target: _center,
+                            zoom: 15.0,
+                          ),
+                          markers: _markers,
+                          polylines: _polylines,
                         ),
                       ),
-                      if (_isRunning) Expanded( // 시작 후에만 보이는 버튼
-                        child: TextButton(
-                          child: Icon(Icons.stop),
-                          onPressed: _stopTimer,
-                        ),
-                      ),
-                      if (_isRunning && !_isPaused) Expanded( // 시작 후에 일시정지하지 않은 경우만 보이는 버튼
-                        child: TextButton(
-                          child: Icon(Icons.pause, color: Colors.red),
-                          onPressed: _pauseTimer,
-                        ),
-                      ),
-                      if (_isRunning && _isPaused) Expanded( // 일시정지된 경우 보이는 버튼
-                        child: TextButton(
-                          child: Icon(Icons.play_arrow, color: Colors.red),
-                          onPressed: _resumeTimer,
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(8.0),
+                        color: Color(0xFFffffff),
+                        child: Column(
+                          children: [
+                            Center(
+                              child: Text("Lat: $lat, Lng: $lng"),
+                            ),
+                            Center(
+                              child: Text(
+                                '${_formatTime(_seconds)}',
+                                style: TextStyle(fontSize: 24,
+                                    fontFamily: "Cafe24Ssurround-Bold"),
+                              ),
+                            ),
+                            Center(
+                              child: Text(
+                                '${_totalDistance.toStringAsFixed(2)}m',
+                                style: TextStyle(fontSize: 18, fontFamily:
+                                "Cafe24Ssurround-Regular"),
+                              ),
+                            ),
+                            Center(
+                              child: Text(
+                                '${_caloriesBurned.toStringAsFixed(2)} kcal',
+                                style: TextStyle(fontSize: 18, fontFamily:
+                                "Cafe24Ssurround-Regular"),
+                              ),
+                            ),
+                            Row(
+                              children: [
+                                if (!_isRunning) Expanded( // 시작 전에만 보이는 버튼
+                                  child: TextButton(
+                                      child: Icon(
+                                          Icons.play_arrow, color: Colors.red),
+                                      onPressed: () {
+                                        _startTimer();
+                                        // 기존 폴리라인 삭제
+                                        _polylines.clear();
+                                      }
+                                  ),
+                                ),
+                                if (_isRunning) Expanded( // 시작 후에만 보이는 버튼
+                                  child: TextButton(
+                                    child: Icon(Icons.stop),
+                                    onPressed: _stopTimer,
+                                  ),
+                                ),
+                                if (_isRunning &&
+                                    !_isPaused) Expanded( // 시작 후에 일시정지하지 않은 경우만 보이는 버튼
+                                  child: TextButton(
+                                    child: Icon(Icons.pause, color: Colors.red),
+                                    onPressed: _pauseTimer,
+                                  ),
+                                ),
+                                if (_isRunning &&
+                                    _isPaused) Expanded( // 일시정지된 경우 보이는 버튼
+                                  child: TextButton(
+                                    child: Icon(
+                                        Icons.play_arrow, color: Colors.red),
+                                    onPressed: _resumeTimer,
+                                  ),
+                                ),
+                              ],
+                            )
+                          ],
                         ),
                       ),
                     ],
-                  )
-                ],
+                  ),
+                ),
               ),
-            ),
-          ],
-        ),
-      ),
+            );
+          }
+        }
     );
   }
-}
 
+//Course 그리기
+  Future<List<Course_Point_Vo>> getCoursePointList(int course_no) async {
+    try {
+      /*----요청처리-------------------*/
+      //Dio 객체 생성 및 설정
+      var dio = Dio();
 
-Future<void> recordDraw(RecordVo recordVo, recordPointList) async {
+      // 헤더설정:json으로 전송
+      dio.options.headers['Content-Type'] = 'application/json';
 
-  print(recordPointList);
-  print(recordVo);
+      // 서버 요청
+      final response = await dio.post(
+        'http://localhost:9020/api/walking/coursebook/point',
 
-  try {
-    /*----요청처리-------------------*/
-    //Dio 객체 생성 및 설정
-    var dio = Dio();
+        data: {
+          // 예시 data  map->json자동변경
+          'course_no': course_no, //총 결제 금액
+        },
+      );
 
-    // 헤더설정:json으로 전송
-    dio.options.headers['Content-Type'] = 'application/json';
+      /*----응답처리-------------------*/
+      if (response.statusCode == 200) {
+        //접속성공 200 이면
+        print("=======================================");
+        print(response.data);
+        print(response.data["apiData"]); // json->map 자동변경
+        print(response.data["apiData"].length);
+        print("=======================================");
 
-    Map<String, dynamic> data = {
-      'recordPointList': recordPointList,
-      'recordVo': recordVo
-    };
+        //비어있는 리스트 생성
+        List<Course_Point_Vo> getCoursePointList = [];
+        //map => {} => [{}, {}, {}]
 
-    // 서버 요청
-    final response = await dio.post(
-      'http://localhost:9020/api/walking/recorddraw',
+        //print(paymentList);
+        for (int i = 0; i < response.data["apiData"].length; i++) {
+          getCoursePointList.add(Course_Point_Vo.fromJson(response.data["apiData"][i]));
+        }
 
-      data: data,
-
-    );
-
-    /*----응답처리-------------------*/
-    if (response.statusCode == 200) {
-      //접속성공 200 이면
-      print(response.data); // json->map 자동변경
-    } else {
-      //접속실패 404, 502등등 api서버 문제
-      throw Exception('api 서버 문제');
+        return getCoursePointList;
+      } else {
+        //접속실패 404, 502등등 api서버 문제
+        throw Exception('api 서버 문제');
+      }
+    } catch (e) {
+      //예외 발생
+      throw Exception('Failed to load person: $e');
     }
-  } catch (e) {
-    //예외 발생
-    throw Exception('Failed to load person: $e');
+  }
+
+
+
+//Record 보내기!
+  Future<void> recordDraw(RecordVo recordVo, recordPointList) async {
+
+    print(recordPointList);
+    print(recordVo);
+
+    try {
+      /*----요청처리-------------------*/
+      //Dio 객체 생성 및 설정
+      var dio = Dio();
+
+      // 헤더설정:json으로 전송
+      dio.options.headers['Content-Type'] = 'application/json';
+
+      Map<String, dynamic> data = {
+        'recordPointList': recordPointList,
+        'recordVo': recordVo
+      };
+
+      // 서버 요청
+      final response = await dio.post(
+        'http://localhost:9020/api/walking/recorddraw',
+
+        data: data,
+
+      );
+
+      /*----응답처리-------------------*/
+      if (response.statusCode == 200) {
+        //접속성공 200 이면
+        print(response.data); // json->map 자동변경
+      } else {
+        //접속실패 404, 502등등 api서버 문제
+        throw Exception('api 서버 문제');
+      }
+    } catch (e) {
+      //예외 발생
+      throw Exception('Failed to load person: $e');
+    }
   }
 }

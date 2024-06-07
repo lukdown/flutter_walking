@@ -406,7 +406,7 @@ class _Course_ListState extends State<_Course_List> {
                                             '/course_gps_map',
                                             arguments: {
                                               "course_no":
-                                                  "${snapshot.data![index].course_no}",
+                                                  snapshot.data![index].course_no,
                                             },
                                           );
                                           //getUserData(storage,_idController.text, _pwController.text, context);
