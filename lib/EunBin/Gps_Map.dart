@@ -5,6 +5,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'dart:async';
 import 'RecordVo.dart';
+import 'Record_Point_Vo.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 
@@ -442,6 +443,9 @@ class _GpsMapState extends State<_GpsMap> {
                     record_kcal: _caloriesBurned.floor(),
                     record_vibe: selectedValue ?? '',
                     record_memo: memo ?? '',
+                    recordPointList: polylineCoordinates.map((point) => Record_Point_Vo(
+                        record_latitude: point.latitude, record_longitude: point.longitude)
+                    ).toList(),
                 );
 
                 recordDraw(recordVo);
@@ -586,6 +590,7 @@ Future<void> recordDraw(RecordVo recordVo) async {
         'record_kcal': recordVo.record_kcal.toString(), // 문자열로 변환
         'record_vibe': recordVo.record_vibe,
         'record_memo': recordVo.record_memo,
+        'recordPointList': recordVo.recordPointList,
       },
 
     );
