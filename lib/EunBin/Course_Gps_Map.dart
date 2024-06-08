@@ -62,6 +62,7 @@ class _GpsMapState extends State<_CourseGpsMap> {
   bool _isStarted = false; // 시작 상태를 저장하는 변수를 추가합니다.
   late double _currentZoomLevel = 15.0; // 기본 확대/축소 레벨을 설정합니다.
   int users_no = 0;
+  int course_no = 0;
 
   List<Record_Point_Vo> recordPointList = []; //기록 좌표
 
@@ -71,7 +72,11 @@ class _GpsMapState extends State<_CourseGpsMap> {
     super.initState();
     _loadMarkerIcons();
     getGeoData();
-    getUsersNo(storage);
+    getUsersNo(storage).then((_) {
+      setState(() {
+        LebListFuture = getCoursePointList(course_no);
+      });
+    });
   }
 
   //맵 불러오기
@@ -124,7 +129,11 @@ class _GpsMapState extends State<_CourseGpsMap> {
     print("user_nouser_nouser_nouser_nouser_nouser_nouser_no");
     print(await storage.read(key: 'UserNo'));
     print("user_nouser_nouser_nouser_nouser_nouser_nouser_no");
+    print("courseNocourseNocourseNocourseNocourseNocourseNocourseNocourseNocourseNo");
+    print(await storage.read(key: 'courseNo'));
+    print("courseNocourseNocourseNocourseNocourseNocourseNocourseNocourseNocourseNo");
     users_no = int.tryParse(await storage.read(key: 'UserNo') ?? '') ?? 0;
+    course_no = int.tryParse(await storage.read(key: 'courseNo') ?? '') ?? 0;
   }
 
   void getPointList() {
@@ -487,14 +496,18 @@ class _GpsMapState extends State<_CourseGpsMap> {
   //////////////////////////////////////빌드빌드빌드빌드/////////////////////////////////////////
   @override
   Widget build(BuildContext context) {
-    final Map? arguments = ModalRoute.of(context)?.settings.arguments as Map?;
-    if (arguments != null && arguments is Map<dynamic, dynamic>) {
+    print(course_no);
+
+    /*
+    final arguments = ModalRoute.of(context)?.settings.arguments as Map?;
+    if (arguments != null) {
       final int course_no = int.parse(arguments['course_no'].toString());
       print(course_no);
       LebListFuture = getCoursePointList(course_no);
       print(LebListFuture);
       // 나머지 코드...
-    } else {
+    }
+    else {
       print("은빈아 너 망한거야은빈아 너 망한거야은빈아 너 망한거야은빈아 너 망한거야은빈아 너 망한거야은빈아 너 망한거야은빈아 너 망한거야은빈아 너 망한거야은빈아 너 망한거야은빈아 너 망한거야은빈아 너 망한거야은빈아 너 망한거야");
       final int course_no = 43;
       print(course_no);
@@ -502,6 +515,8 @@ class _GpsMapState extends State<_CourseGpsMap> {
       print(LebListFuture);
       print("은빈아 너 망한거야은빈아 너 망한거야은빈아 너 망한거야은빈아 너 망한거야은빈아 너 망한거야은빈아 너 망한거야은빈아 너 망한거야은빈아 너 망한거야은빈아 너 망한거야은빈아 너 망한거야은빈아 너 망한거야은빈아 너 망한거야");
     }
+    */
+
     return FutureBuilder(
         future: LebListFuture, //Future<> 함수명, 으로 받은 데이타
         builder: (context, snapshot) {

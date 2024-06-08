@@ -213,6 +213,7 @@ class _Course_ListState extends State<_Course_List> {
                       key: PageStorageKey("LIST_VIEW1"),
                       itemCount: snapshot.data!.length,
                       itemBuilder: (BuildContext context, int index) {
+                        var courseNono = snapshot.data![index].course_no.toString();
                         return Container(
                           child: Container(
                               child: Container(
@@ -402,21 +403,33 @@ class _Course_ListState extends State<_Course_List> {
                                           backgroundColor: Color(0xFF068cd2),
                                         ),
                                         onPressed: () {
+
                                           print("--------------------------------");
                                           print("--------------------------------");
                                           print("${snapshot.data![index].course_no}");
                                           print("--------------------------------");
+                                          storage.write(key: "courseNo", value: courseNono);
+                                          Navigator.pushNamed(
+                                            context,
+                                            "/course_gps_map",
+                                            arguments: {
+                                              "course_no": "${snapshot.data![index].course_no}"
+                                            },
+                                          );
+                                          /*
                                           Navigator.pushReplacement(
                                             context,
                                             MaterialPageRoute(
                                               builder: (context) => CourseGpsMap(),
                                               settings: RouteSettings(
                                                 arguments: {
-                                                  "course_no": snapshot.data![index].course_no
+                                                  "course_no": "${snapshot.data![index].course_no}"
                                                 },
                                               ),
                                             ),
                                           );
+
+                                           */
                                           //getUserData(storage,_idController.text, _pwController.text, context);
                                         },
                                         child: Text(
