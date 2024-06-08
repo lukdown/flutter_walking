@@ -6,7 +6,6 @@ import 'EunBin/Gps_Map.dart';
 import 'EunBin/Course_Gps_Map.dart';
 import 'YounSoo/Course_List.dart';
 
-
 void main() {
   // FlutterSecureStorage 객체 생성
   final storage = FlutterSecureStorage(aOptions: _getAndroidOptions());
@@ -35,12 +34,13 @@ class MyApp extends StatelessWidget {
         "/login": (context) => Login_page(),
         "/course_list": (context) => Course_List(),
         "/gps_map": (context) => GpsMap(),
-        "/coursegpsmap": (context) => CourseGpsMap(),
-
-      }
+        "/course_gps_map": (context) => CourseGpsMap(),
+      },
     );
   }
 }
+
 AndroidOptions _getAndroidOptions() => const AndroidOptions(
   encryptedSharedPreferences: true,
 );
+

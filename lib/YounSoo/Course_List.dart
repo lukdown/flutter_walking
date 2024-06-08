@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import 'course_list_Vo.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import '../EunBin/Course_Gps_Map.dart';
 
 class Course_List extends StatelessWidget {
   const Course_List({super.key});
@@ -402,13 +403,19 @@ class _Course_ListState extends State<_Course_List> {
                                         ),
                                         onPressed: () {
                                           print("--------------------------------");
+                                          print("--------------------------------");
                                           print("${snapshot.data![index].course_no}");
-                                          Navigator.pushNamed(
+                                          print("--------------------------------");
+                                          Navigator.pushReplacement(
                                             context,
-                                            '/coursegpsmap',
-                                            arguments: {
-                                              "course_no": snapshot.data![index].course_no
-                                            },
+                                            MaterialPageRoute(
+                                              builder: (context) => CourseGpsMap(),
+                                              settings: RouteSettings(
+                                                arguments: {
+                                                  "course_no": snapshot.data![index].course_no
+                                                },
+                                              ),
+                                            ),
                                           );
                                           //getUserData(storage,_idController.text, _pwController.text, context);
                                         },

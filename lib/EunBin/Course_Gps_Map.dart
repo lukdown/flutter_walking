@@ -22,14 +22,13 @@ class CourseGpsMap extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: _CourseGpsMap(),
+      home: _CourseGpsMap()
 
     );
   }
 }
 
 class _CourseGpsMap extends StatefulWidget {
-  const _CourseGpsMap({Key? key}) : super(key: key);
 
   @override
   _GpsMapState createState() => _GpsMapState();
@@ -177,6 +176,8 @@ class _GpsMapState extends State<_CourseGpsMap> {
     });
   }
 
+
+
   //마커 업데이트
   void _updateMarker() {
     setState(() {
@@ -230,6 +231,7 @@ class _GpsMapState extends State<_CourseGpsMap> {
       );
     });
   }
+
 
 
 
@@ -304,20 +306,6 @@ class _GpsMapState extends State<_CourseGpsMap> {
     }
     super.dispose();
   }
-
-  // 사용자의 현재 위치로 카메라를 이동하는 함수
-  void _moveToCurrentLocation() async {
-    // 사용자의 현재 위치를 얻어옵니다.
-    Position position = await Geolocator.getCurrentPosition();
-    // 현재 위치로 카메라를 이동합니다.
-    mapController.animateCamera(
-      CameraUpdate.newLatLngZoom(
-        LatLng(position.latitude, position.longitude),
-        15.0,
-      ),
-    );
-  }
-
 
 
   // 시간 계산
@@ -499,14 +487,21 @@ class _GpsMapState extends State<_CourseGpsMap> {
   //////////////////////////////////////빌드빌드빌드빌드/////////////////////////////////////////
   @override
   Widget build(BuildContext context) {
-    final Map arguments = ModalRoute.of(context)?.settings.arguments as Map;
-    final int course_no = int.parse(arguments['course_no'].toString());
-    print("-------------------------");
-    print(course_no);
-
-
-    LebListFuture = getCoursePointList(course_no);
-    print(LebListFuture);
+    final Map? arguments = ModalRoute.of(context)?.settings.arguments as Map?;
+    if (arguments != null && arguments is Map<dynamic, dynamic>) {
+      final int course_no = int.parse(arguments['course_no'].toString());
+      print(course_no);
+      LebListFuture = getCoursePointList(course_no);
+      print(LebListFuture);
+      // 나머지 코드...
+    } else {
+      print("은빈아 너 망한거야은빈아 너 망한거야은빈아 너 망한거야은빈아 너 망한거야은빈아 너 망한거야은빈아 너 망한거야은빈아 너 망한거야은빈아 너 망한거야은빈아 너 망한거야은빈아 너 망한거야은빈아 너 망한거야은빈아 너 망한거야");
+      final int course_no = 43;
+      print(course_no);
+      LebListFuture = getCoursePointList(course_no);
+      print(LebListFuture);
+      print("은빈아 너 망한거야은빈아 너 망한거야은빈아 너 망한거야은빈아 너 망한거야은빈아 너 망한거야은빈아 너 망한거야은빈아 너 망한거야은빈아 너 망한거야은빈아 너 망한거야은빈아 너 망한거야은빈아 너 망한거야은빈아 너 망한거야");
+    }
     return FutureBuilder(
         future: LebListFuture, //Future<> 함수명, 으로 받은 데이타
         builder: (context, snapshot) {
@@ -517,6 +512,16 @@ class _GpsMapState extends State<_CourseGpsMap> {
           } else if (!snapshot.hasData) {
             return Center(child: Text('데이터가 없습니다.'));
           } else {
+            List<LatLng> coursePoints = snapshot.data!.map((e) => LatLng(e.course_latitude, e.course_longitude)).toList();
+            Set<Polyline> coursePolylines = {
+              Polyline(
+                polylineId: PolylineId('course_polyline'),
+                color: Colors.red,
+                points: coursePoints,
+                width: 5,
+              ),
+            };
+            _polylines.addAll(coursePolylines); // 폴리라인 2 추가
             return Container(
               child: MaterialApp(
                 home: Scaffold(
@@ -540,7 +545,7 @@ class _GpsMapState extends State<_CourseGpsMap> {
                             zoom: 15.0,
                           ),
                           markers: _markers,
-                          polylines: _polylines,
+                          polylines: _polylines
                         ),
                       ),
                       Container(
@@ -646,19 +651,21 @@ class _GpsMapState extends State<_CourseGpsMap> {
         print("=======================================");
         print(response.data);
         print(response.data["apiData"]); // json->map 자동변경
+        print(response.data["apiData"][1]); // json->map 자동변경
         print(response.data["apiData"].length);
         print("=======================================");
 
         //비어있는 리스트 생성
-        List<Course_Point_Vo> getCoursePointList = [];
+        List<Course_Point_Vo> coursePointList = [];
         //map => {} => [{}, {}, {}]
-
+        print("=======qqqqqqqqqqqq======================");
         //print(paymentList);
         for (int i = 0; i < response.data["apiData"].length; i++) {
-          getCoursePointList.add(Course_Point_Vo.fromJson(response.data["apiData"][i]));
+          coursePointList.add(Course_Point_Vo.fromJson(response.data["apiData"][i]));
+          print(i);
         }
-
-        return getCoursePointList;
+        print("=======qqqqqqqqqqqqqqqqqqqq===================");
+        return coursePointList;
       } else {
         //접속실패 404, 502등등 api서버 문제
         throw Exception('api 서버 문제');
