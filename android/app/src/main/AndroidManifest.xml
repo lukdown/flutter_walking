@@ -4,7 +4,9 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>  <!--정확한 위치-->
     <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
     <application
-        android:label="Google Maps in Flutter">
+        android:label="@string/app_name"
+        android:icon="@mipmap/ic_launcher"
+        >
 
         <!-- Google Maps API 키 추가 -->
         <meta-data
