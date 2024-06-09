@@ -9,19 +9,12 @@ import 'Record_Point_Vo.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 
-void main() {
-  WidgetsFlutterBinding.ensureInitialized();
-  runApp(GpsMap());
-}
-
 class GpsMap extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: _GpsMap(),
+    return Scaffold(
+
+      body: _GpsMap(),
     );
   }
 }

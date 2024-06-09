@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
+import '../EunBin/Gps_Map.dart';
 import 'course_list_Vo.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../EunBin/Course_Gps_Map.dart';
@@ -47,7 +48,12 @@ class Course_List extends StatelessWidget {
                 Navigator.pushNamed(context, '/course_list');
                 break;
               case 2:
-                Navigator.pushNamed(context, '/gps_map');
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => GpsMap(),
+                  ),
+                );
                 break;
               case 3:
                 Navigator.popUntil(context, (route) => route.isFirst);
@@ -453,6 +459,7 @@ class _Course_ListState extends State<_Course_List> {
                       key: PageStorageKey("LIST_VIEW2"),
                       itemCount: snapshot.data!.length,
                       itemBuilder: (BuildContext context, int index) {
+                        var courseNono = snapshot.data![index].course_no.toString();
                         return Container(
                           child: Center(
                               child: Container(
@@ -708,13 +715,10 @@ class _Course_ListState extends State<_Course_List> {
                                           backgroundColor: Color(0xFF068cd2),
                                         ),
                                         onPressed: () {
+                                          storage.write(key: "courseNo", value: courseNono);
                                           Navigator.pushNamed(
                                             context,
-                                            '/course_gps_map',
-                                            arguments: {
-                                              "course_no":
-                                                  "${snapshot.data![index].course_no}",
-                                            },
+                                            '/course_gps_map'
                                           );
                                           //getUserData(storage,_idController.text, _pwController.text, context);
                                         },
@@ -739,6 +743,7 @@ class _Course_ListState extends State<_Course_List> {
                       key: PageStorageKey("LIST_VIEW3"),
                       itemCount: snapshot.data!.length,
                       itemBuilder: (BuildContext context, int index) {
+                        var courseNono = snapshot.data![index].course_no.toString();
                         return Container(
                           child: Center(
                               child: Container(
@@ -996,14 +1001,11 @@ class _Course_ListState extends State<_Course_List> {
                                         onPressed: () {
                                           print("-----------------------------------------");
                                           print("${snapshot.data![index].course_no}");
-                                          /*Navigator.pushNamed(
+                                          storage.write(key: "courseNo", value: courseNono);
+                                          Navigator.pushNamed(
                                             context,
-                                            '/course_gps_map',
-                                            arguments: {
-                                              "course_no":
-                                              "${snapshot.data![index].course_no}",
-                                            },
-                                          );*/
+                                            '/course_gps_map'
+                                          );
                                           //getUserData(storage,_idController.text, _pwController.text, context);
                                         },
                                         child: Text(
