@@ -19,9 +19,7 @@ class CourseGpsMap extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
+
       home: _CourseGpsMap()
 
     );
@@ -364,7 +362,11 @@ class _GpsMapState extends State<_CourseGpsMap> {
         return AlertDialog(
           title: Text(
             '오늘의 운동',
-            style: TextStyle(fontFamily: "Cafe24Ssurround-Bold", fontSize: 18, color: Color(0xff16517b)),
+            style: TextStyle(
+              fontFamily: "Cafe24Ssurround-Bold",
+              fontSize: 20,
+              color: Color(0xff16517b),
+            ),
           ),
           content: SingleChildScrollView(
             physics: ClampingScrollPhysics(), // 스크롤 동작 설정
@@ -376,17 +378,19 @@ class _GpsMapState extends State<_CourseGpsMap> {
                   children: [
                     Text(
                       '시간: ${_formatTime(_seconds)}',
-                      style: TextStyle(fontFamily: "Cafe24Ssurround-Regular", fontSize: 13),
+                      style: TextStyle(fontFamily: "Cafe24Ssurround-Regular", fontSize: 16),
                     ),
+                    SizedBox(height: 8),
                     Text(
                       '거리: ${_totalDistance} m',
-                      style: TextStyle(fontFamily: "Cafe24Ssurround-Regular", fontSize: 13),
+                      style: TextStyle(fontFamily: "Cafe24Ssurround-Regular", fontSize: 16),
                     ),
+                    SizedBox(height: 8),
                     Text(
                       '칼로리: ${_caloriesBurned.toStringAsFixed(2)} kcal',
-                      style: TextStyle(fontFamily: "Cafe24Ssurround-Regular", fontSize: 13),
+                      style: TextStyle(fontFamily: "Cafe24Ssurround-Regular", fontSize: 16),
                     ),
-                    // 라디오 버튼 추가
+                    SizedBox(height: 16),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
@@ -428,12 +432,16 @@ class _GpsMapState extends State<_CourseGpsMap> {
                         ),
                       ],
                     ),
-
-                    // 텍스트 입력란 추가
+                    SizedBox(height: 16),
                     TextField(
                       decoration: InputDecoration(
                         hintText: '메모',
-                        hintStyle: TextStyle(fontFamily: 'YourFontFamily'),
+                        hintStyle: TextStyle(fontFamily: "Cafe24Ssurround-Regular"),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12.0),
+                        ),
+                        filled: true,
+                        fillColor: Color(0xFFF2F2F2),
                       ),
                       onChanged: (value) {
                         // 입력된 텍스트를 memo 변수에 저장
@@ -467,7 +475,7 @@ class _GpsMapState extends State<_CourseGpsMap> {
                 // 선택된 값과 메모를 recordVo에 저장
                 RecordVo recordVo = RecordVo(
                   users_no: users_no,
-                  course_no: 1,
+                  course_no: course_no,
                   record_time: _formatTime(_seconds),
                   record_length: double.parse(_totalDistance.toStringAsFixed(2)),
                   record_kcal: _caloriesBurned.floor(),
@@ -488,8 +496,8 @@ class _GpsMapState extends State<_CourseGpsMap> {
         );
       },
     );
-  }
 
+  }
 
 
 
@@ -498,24 +506,6 @@ class _GpsMapState extends State<_CourseGpsMap> {
   Widget build(BuildContext context) {
     print(course_no);
 
-    /*
-    final arguments = ModalRoute.of(context)?.settings.arguments as Map?;
-    if (arguments != null) {
-      final int course_no = int.parse(arguments['course_no'].toString());
-      print(course_no);
-      LebListFuture = getCoursePointList(course_no);
-      print(LebListFuture);
-      // 나머지 코드...
-    }
-    else {
-      print("은빈아 너 망한거야은빈아 너 망한거야은빈아 너 망한거야은빈아 너 망한거야은빈아 너 망한거야은빈아 너 망한거야은빈아 너 망한거야은빈아 너 망한거야은빈아 너 망한거야은빈아 너 망한거야은빈아 너 망한거야은빈아 너 망한거야");
-      final int course_no = 43;
-      print(course_no);
-      LebListFuture = getCoursePointList(course_no);
-      print(LebListFuture);
-      print("은빈아 너 망한거야은빈아 너 망한거야은빈아 너 망한거야은빈아 너 망한거야은빈아 너 망한거야은빈아 너 망한거야은빈아 너 망한거야은빈아 너 망한거야은빈아 너 망한거야은빈아 너 망한거야은빈아 너 망한거야은빈아 너 망한거야");
-    }
-    */
 
     return FutureBuilder(
         future: LebListFuture, //Future<> 함수명, 으로 받은 데이타
@@ -677,7 +667,6 @@ class _GpsMapState extends State<_CourseGpsMap> {
         //print(paymentList);
         for (int i = 0; i < response.data["apiData"].length; i++) {
           coursePointList.add(Course_Point_Vo.fromJson(response.data["apiData"][i]));
-          print(i);
         }
         print("=======qqqqqqqqqqqqqqqqqqqq===================");
         return coursePointList;

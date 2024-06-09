@@ -311,29 +311,39 @@ class _GpsMapState extends State<_GpsMap> {
   //---------------------------------------------------------------------------//
 
   // 직선 거리 계산
+
+  // 거리 계산 함수
   double _calculatePolylineLength(List<LatLng> points) {
     double totalDistance = 0.0;
-
-    for (int i = 0; i < points.length - 1; i++) {
-      double startLatitude = points[i].latitude;
-      double startLongitude = points[i].longitude;
-      double endLatitude = points[i + 1].latitude;
-      double endLongitude = points[i + 1].longitude;
-
-      double distance = Geolocator.distanceBetween(
-          startLatitude, startLongitude, endLatitude, endLongitude);
-
-      totalDistance += distance;
+    if (points.length > 1) {
+      for (int i = 0; i < points.length - 1; i++) {
+        totalDistance += _coordinateDistance(
+          points[i].latitude,
+          points[i].longitude,
+          points[i + 1].latitude,
+          points[i + 1].longitude,
+        );
+      }
     }
-
     return totalDistance;
   }
 
-  // 칼로리 계산
-  double _calculateCalories(double distance, double weight) {
-    const double caloriesPerKmPerKg = 0.57;
-    return distance / 1000 * weight * caloriesPerKmPerKg;
+  double _coordinateDistance(double lat1, double lon1, double lat2, double lon2) {
+    const double p = 0.017453292519943295; // π / 180
+    final double a = 0.5 - cos((lat2 - lat1) * p) / 2 +
+        cos(lat1 * p) * cos(lat2 * p) * (1 - cos((lon2 - lon1) * p)) / 2;
+    return 12742 * asin(sqrt(a)); // 2 * R; R = 6371 km
   }
+
+  // 칼로리 계산 함수
+  double _calculateCalories(double distance, double weight) {
+    // 단위 시간당 소모 칼로리 계산 예제
+    // 일반적인 공식을 사용했습니다. 실제 운동 소모 칼로리는 운동 강도에 따라 다를 수 있습니다.
+    double met = 8.0; // MET 값 (운동 강도) 예시
+    double hours = _seconds / 3600; // 시간 변환
+    return met * weight * hours;
+  }
+
 
   void _showSummaryDialog() {
     // 선택된 라디오 버튼과 메모를 저장하는 변수
@@ -346,7 +356,11 @@ class _GpsMapState extends State<_GpsMap> {
         return AlertDialog(
           title: Text(
             '오늘의 운동',
-            style: TextStyle(fontFamily: "Cafe24Ssurround-Bold", fontSize: 18, color: Color(0xff16517b)),
+            style: TextStyle(
+              fontFamily: "Cafe24Ssurround-Bold",
+              fontSize: 20,
+              color: Color(0xff16517b),
+            ),
           ),
           content: SingleChildScrollView(
             physics: ClampingScrollPhysics(), // 스크롤 동작 설정
@@ -358,17 +372,19 @@ class _GpsMapState extends State<_GpsMap> {
                   children: [
                     Text(
                       '시간: ${_formatTime(_seconds)}',
-                      style: TextStyle(fontFamily: "Cafe24Ssurround-Regular", fontSize: 13),
+                      style: TextStyle(fontFamily: "Cafe24Ssurround-Regular", fontSize: 16),
                     ),
+                    SizedBox(height: 8),
                     Text(
                       '거리: ${_totalDistance} m',
-                      style: TextStyle(fontFamily: "Cafe24Ssurround-Regular", fontSize: 13),
+                      style: TextStyle(fontFamily: "Cafe24Ssurround-Regular", fontSize: 16),
                     ),
+                    SizedBox(height: 8),
                     Text(
                       '칼로리: ${_caloriesBurned.toStringAsFixed(2)} kcal',
-                      style: TextStyle(fontFamily: "Cafe24Ssurround-Regular", fontSize: 13),
+                      style: TextStyle(fontFamily: "Cafe24Ssurround-Regular", fontSize: 16),
                     ),
-                    // 라디오 버튼 추가
+                    SizedBox(height: 16),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
@@ -410,12 +426,16 @@ class _GpsMapState extends State<_GpsMap> {
                         ),
                       ],
                     ),
-
-                    // 텍스트 입력란 추가
+                    SizedBox(height: 16),
                     TextField(
                       decoration: InputDecoration(
                         hintText: '메모',
-                        hintStyle: TextStyle(fontFamily: 'YourFontFamily'),
+                        hintStyle: TextStyle(fontFamily: "Cafe24Ssurround-Regular"),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12.0),
+                        ),
+                        filled: true,
+                        fillColor: Color(0xFFF2F2F2),
                       ),
                       onChanged: (value) {
                         // 입력된 텍스트를 memo 변수에 저장
@@ -448,13 +468,13 @@ class _GpsMapState extends State<_GpsMap> {
               onPressed: () {
                 // 선택된 값과 메모를 recordVo에 저장
                 RecordVo recordVo = RecordVo(
-                    users_no: users_no,
-                    course_no: 1,
-                    record_time: _formatTime(_seconds),
-                    record_length: double.parse(_totalDistance.toStringAsFixed(2)),
-                    record_kcal: _caloriesBurned.floor(),
-                    record_vibe: selectedValue ?? '',
-                    record_memo: memo ?? '',
+                  users_no: users_no,
+                  course_no: 1,
+                  record_time: _formatTime(_seconds),
+                  record_length: double.parse(_totalDistance.toStringAsFixed(2)),
+                  record_kcal: _caloriesBurned.floor(),
+                  record_vibe: selectedValue ?? '',
+                  record_memo: memo ?? '',
                 );
                 getPointList();
                 recordDraw(recordVo, recordPointList);
@@ -470,6 +490,7 @@ class _GpsMapState extends State<_GpsMap> {
         );
       },
     );
+
   }
 
 
@@ -577,7 +598,7 @@ Future<void> recordDraw(RecordVo recordVo, recordPointList) async {
 
   print(recordPointList);
   print(recordVo);
-  
+
   try {
     /*----요청처리-------------------*/
     //Dio 객체 생성 및 설정
