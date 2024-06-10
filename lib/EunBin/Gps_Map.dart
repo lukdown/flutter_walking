@@ -233,16 +233,19 @@ class _GpsMapState extends State<_GpsMap> {
           });
 
           locationUpdateCounter++;
+
           if (locationUpdateCounter >= 3) {
             locationUpdateCounter = 0;
             getGeoData(); // 위치 업데이트
             polylineCoordinates.add(LatLng(double.parse(lat!), double.parse(lng!)));
             _updatePolyline(); // 폴리라인 업데이트 추가
-            _updateMarker(); // 마커 업데이트
+
 
             // 거리 및 칼로리 계산
             _totalDistance = _calculatePolylineLength(polylineCoordinates);
             _caloriesBurned = _calculateCalories(_totalDistance, _weight);
+          } else if(locationUpdateCounter >= 1){
+              _updateMarker(); // 마커 업데이트
           }
         }
       });
@@ -283,20 +286,6 @@ class _GpsMapState extends State<_GpsMap> {
     }
     super.dispose();
   }
-
-  // 사용자의 현재 위치로 카메라를 이동하는 함수
-  void _moveToCurrentLocation() async {
-    // 사용자의 현재 위치를 얻어옵니다.
-    Position position = await Geolocator.getCurrentPosition();
-    // 현재 위치로 카메라를 이동합니다.
-    mapController.animateCamera(
-      CameraUpdate.newLatLngZoom(
-        LatLng(position.latitude, position.longitude),
-        15.0,
-      ),
-    );
-  }
-
 
 
   // 시간 계산
@@ -376,7 +365,7 @@ class _GpsMapState extends State<_GpsMap> {
                     ),
                     SizedBox(height: 8),
                     Text(
-                      '거리: ${_totalDistance} m',
+                      '거리: ${_totalDistance.toStringAsFixed(2)} m',
                       style: TextStyle(fontFamily: "Cafe24Ssurround-Regular", fontSize: 16),
                     ),
                     SizedBox(height: 8),
@@ -388,40 +377,40 @@ class _GpsMapState extends State<_GpsMap> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
-                        Flexible(
-                          child: RadioListTile<String>(
-                            title: Text('😊', style: TextStyle(fontSize: 25)),
-                            value: '좋음',
-                            groupValue: selectedValue,
-                            onChanged: (value) {
-                              setState(() {
-                                selectedValue = value;
-                              });
-                            },
+                        GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              selectedValue = '좋음';
+                            });
+                          },
+                          child: Icon(
+                            Icons.mood,
+                            size: 25,
+                            color: selectedValue == '좋음' ? Colors.blue : Colors.grey,
                           ),
                         ),
-                        Flexible(
-                          child: RadioListTile<String>(
-                            title: Text('🙂', style: TextStyle(fontSize: 25)),
-                            value: '보통',
-                            groupValue: selectedValue,
-                            onChanged: (value) {
-                              setState(() {
-                                selectedValue = value;
-                              });
-                            },
+                        GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              selectedValue = '보통';
+                            });
+                          },
+                          child: Icon(
+                            Icons.sentiment_neutral,
+                            size: 25,
+                            color: selectedValue == '보통' ? Colors.blue : Colors.grey,
                           ),
                         ),
-                        Flexible(
-                          child: RadioListTile<String>(
-                            title: Text('☹️', style: TextStyle(fontSize: 25)),
-                            value: '나쁨',
-                            groupValue: selectedValue,
-                            onChanged: (value) {
-                              setState(() {
-                                selectedValue = value;
-                              });
-                            },
+                        GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              selectedValue = '나쁨';
+                            });
+                          },
+                          child: Icon(
+                            Icons.sentiment_very_dissatisfied,
+                            size: 25,
+                            color: selectedValue == '나쁨' ? Colors.blue : Colors.grey,
                           ),
                         ),
                       ],
@@ -478,6 +467,65 @@ class _GpsMapState extends State<_GpsMap> {
                 );
                 getPointList();
                 recordDraw(recordVo, recordPointList);
+                _showComplete();
+              },
+            ),
+          ],
+          elevation: 10.0,
+          backgroundColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(32)),
+          ),
+        );
+      },
+    );
+  }
+
+
+  void _showComplete() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(
+            '오늘의 운동',
+            style: TextStyle(
+              fontFamily: "Cafe24Ssurround-Bold",
+              fontSize: 20,
+              color: Color(0xff16517b),
+            ),
+          ),
+          content: SingleChildScrollView(
+            physics: ClampingScrollPhysics(), // 스크롤 동작 설정
+            child: StatefulBuilder(
+              builder: (BuildContext context, StateSetter setState) {
+                return Text(
+                  '저장이 완료되었습니다.',
+                  style: TextStyle(fontFamily: "Cafe24Ssurround-Regular", fontSize: 16),
+                );
+              },
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              style: ButtonStyle(
+                backgroundColor: MaterialStateProperty.all<Color>(
+                    Color(0xFF068CD2)), // 배경색
+                shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                  RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20.0), // 버튼의 둥근 모서리 설정
+                  ),
+                ),
+              ),
+              child: Text(
+                '확인',
+                style: TextStyle(
+                  fontFamily: "Cafe24Ssurround-Regular",
+                  fontSize: 18,
+                  color: Colors.white, // 글자색을 흰색으로 설정
+                ),
+              ),
+              onPressed: () {
                 Navigator.pushNamed(context, "/");
               },
             ),
@@ -490,7 +538,6 @@ class _GpsMapState extends State<_GpsMap> {
         );
       },
     );
-
   }
 
 
@@ -614,7 +661,7 @@ Future<void> recordDraw(RecordVo recordVo, recordPointList) async {
 
     // 서버 요청
     final response = await dio.post(
-      'http://localhost:9020/api/walking/recorddraw',
+      'http://43.201.96.200:9020/api/walking/recorddraw',
 
       data: data,
 

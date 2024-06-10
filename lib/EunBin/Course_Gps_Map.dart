@@ -20,7 +20,7 @@ class CourseGpsMap extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
 
-      home: _CourseGpsMap()
+        home: _CourseGpsMap()
 
     );
   }
@@ -394,40 +394,40 @@ class _GpsMapState extends State<_CourseGpsMap> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
-                        Flexible(
-                          child: RadioListTile<String>(
-                            title: Text('😊', style: TextStyle(fontSize: 25)),
-                            value: '좋음',
-                            groupValue: selectedValue,
-                            onChanged: (value) {
-                              setState(() {
-                                selectedValue = value;
-                              });
-                            },
+                        GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              selectedValue = '좋음';
+                            });
+                          },
+                          child: Icon(
+                            Icons.mood,
+                            size: 25,
+                            color: selectedValue == '좋음' ? Colors.blue : Colors.grey,
                           ),
                         ),
-                        Flexible(
-                          child: RadioListTile<String>(
-                            title: Text('🙂', style: TextStyle(fontSize: 25)),
-                            value: '보통',
-                            groupValue: selectedValue,
-                            onChanged: (value) {
-                              setState(() {
-                                selectedValue = value;
-                              });
-                            },
+                        GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              selectedValue = '보통';
+                            });
+                          },
+                          child: Icon(
+                            Icons.sentiment_neutral,
+                            size: 25,
+                            color: selectedValue == '보통' ? Colors.blue : Colors.grey,
                           ),
                         ),
-                        Flexible(
-                          child: RadioListTile<String>(
-                            title: Text('☹️', style: TextStyle(fontSize: 25)),
-                            value: '나쁨',
-                            groupValue: selectedValue,
-                            onChanged: (value) {
-                              setState(() {
-                                selectedValue = value;
-                              });
-                            },
+                        GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              selectedValue = '나쁨';
+                            });
+                          },
+                          child: Icon(
+                            Icons.sentiment_very_dissatisfied,
+                            size: 25,
+                            color: selectedValue == '나쁨' ? Colors.blue : Colors.grey,
                           ),
                         ),
                       ],
@@ -484,7 +484,7 @@ class _GpsMapState extends State<_CourseGpsMap> {
                 );
                 getPointList();
                 recordDraw(recordVo, recordPointList);
-                Navigator.pushNamed(context, "/");
+                _showComplete();
               },
             ),
           ],
@@ -498,10 +498,70 @@ class _GpsMapState extends State<_CourseGpsMap> {
     );
 
   }
+  void _showComplete() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(
+            '오늘의 운동',
+            style: TextStyle(
+              fontFamily: "Cafe24Ssurround-Bold",
+              fontSize: 20,
+              color: Color(0xff16517b),
+            ),
+          ),
+          content: SingleChildScrollView(
+            physics: ClampingScrollPhysics(), // 스크롤 동작 설정
+            child: StatefulBuilder(
+              builder: (BuildContext context, StateSetter setState) {
+                return Text(
+                  '저장이 완료되었습니다.',
+                  style: TextStyle(fontFamily: "Cafe24Ssurround-Regular", fontSize: 16),
+                );
+              },
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              style: ButtonStyle(
+                backgroundColor: MaterialStateProperty.all<Color>(
+                    Color(0xFF068CD2)), // 배경색
+                shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                  RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20.0), // 버튼의 둥근 모서리 설정
+                  ),
+                ),
+              ),
+              child: Text(
+                '확인',
+                style: TextStyle(
+                  fontFamily: "Cafe24Ssurround-Regular",
+                  fontSize: 18,
+                  color: Colors.white, // 글자색을 흰색으로 설정
+                ),
+              ),
+              onPressed: () {
+                Navigator.pushNamed(context, "/");
+              },
+            ),
+          ],
+          elevation: 10.0,
+          backgroundColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(32)),
+          ),
+        );
+      },
+    );
+  }
 
 
 
-  //////////////////////////////////////빌드빌드빌드빌드/////////////////////////////////////////
+
+
+
+//////////////////////////////////////빌드빌드빌드빌드/////////////////////////////////////////
   @override
   Widget build(BuildContext context) {
     print(course_no);
@@ -544,13 +604,13 @@ class _GpsMapState extends State<_CourseGpsMap> {
                     children: [
                       Expanded(
                         child: GoogleMap(
-                          onMapCreated: _onMapCreated,
-                          initialCameraPosition: CameraPosition(
-                            target: _center,
-                            zoom: 15.0,
-                          ),
-                          markers: _markers,
-                          polylines: _polylines
+                            onMapCreated: _onMapCreated,
+                            initialCameraPosition: CameraPosition(
+                              target: _center,
+                              zoom: 15.0,
+                            ),
+                            markers: _markers,
+                            polylines: _polylines
                         ),
                       ),
                       Container(
@@ -647,7 +707,7 @@ class _GpsMapState extends State<_CourseGpsMap> {
 
       // 서버 요청
       final response = await dio.post(
-        'http://localhost:9020/api/walking/coursebook/point/${course_no}',
+        'http://43.201.96.200:9020/api/walking/coursebook/point/${course_no}',
       );
 
       /*----응답처리-------------------*/
@@ -703,7 +763,7 @@ class _GpsMapState extends State<_CourseGpsMap> {
 
       // 서버 요청
       final response = await dio.post(
-        'http://localhost:9020/api/walking/recorddraw',
+        'http://43.201.96.200:9020/api/walking/recorddraw',
 
         data: data,
 
