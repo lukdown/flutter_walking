@@ -132,16 +132,13 @@ class _GpsMapState extends State<_GpsMap> {
       // 기존 마커들을 모두 지우고 새로운 마커 추가
       _startmarker.clear();
       BitmapDescriptor markerIcon = _startMarkerIcon!;
-      if (_isRunning) {
-        markerIcon = _movingMarkerIcon!;
-      }
       _startmarker.add(
         Marker(
           markerId: const MarkerId('startLocation'),
           position: LatLng(double.parse(lat!), double.parse(lng!)),
           icon: markerIcon,
           infoWindow: const InfoWindow(
-            title: 'Start Location',
+            title: '출발',
           ),
         ),
       );
@@ -239,13 +236,11 @@ class _GpsMapState extends State<_GpsMap> {
             getGeoData(); // 위치 업데이트
             polylineCoordinates.add(LatLng(double.parse(lat!), double.parse(lng!)));
             _updatePolyline(); // 폴리라인 업데이트 추가
-
+            _updateMarker();
 
             // 거리 및 칼로리 계산
             _totalDistance = _calculatePolylineLength(polylineCoordinates);
             _caloriesBurned = _calculateCalories(_totalDistance, _weight);
-          } else if(locationUpdateCounter >= 1){
-              _updateMarker(); // 마커 업데이트
           }
         }
       });
@@ -299,30 +294,23 @@ class _GpsMapState extends State<_GpsMap> {
 
   //---------------------------------------------------------------------------//
 
-  // 직선 거리 계산
-
   // 거리 계산 함수
   double _calculatePolylineLength(List<LatLng> points) {
     double totalDistance = 0.0;
-    if (points.length > 1) {
-      for (int i = 0; i < points.length - 1; i++) {
-        totalDistance += _coordinateDistance(
-          points[i].latitude,
-          points[i].longitude,
-          points[i + 1].latitude,
-          points[i + 1].longitude,
-        );
-      }
+
+    for (int i = 0; i < points.length - 1; i++) {
+      double distance = Geolocator.distanceBetween(
+        points[i].latitude,
+        points[i].longitude,
+        points[i + 1].latitude,
+        points[i + 1].longitude,
+      );
+      totalDistance += distance;
     }
+
     return totalDistance;
   }
 
-  double _coordinateDistance(double lat1, double lon1, double lat2, double lon2) {
-    const double p = 0.017453292519943295; // π / 180
-    final double a = 0.5 - cos((lat2 - lat1) * p) / 2 +
-        cos(lat1 * p) * cos(lat2 * p) * (1 - cos((lon2 - lon1) * p)) / 2;
-    return 12742 * asin(sqrt(a)); // 2 * R; R = 6371 km
-  }
 
   // 칼로리 계산 함수
   double _calculateCalories(double distance, double weight) {
@@ -333,7 +321,7 @@ class _GpsMapState extends State<_GpsMap> {
     return met * weight * hours;
   }
 
-
+  ////////////모달모달모달모달/////////////////////////////////////////////////////////////////////
   void _showSummaryDialog() {
     // 선택된 라디오 버튼과 메모를 저장하는 변수
     String? selectedValue; // 라디오 버튼 값 저장 변수

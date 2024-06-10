@@ -159,9 +159,6 @@ class _GpsMapState extends State<_CourseGpsMap> {
       // 기존 마커들을 모두 지우고 새로운 마커 추가
       _startmarker.clear();
       BitmapDescriptor markerIcon = _startMarkerIcon!;
-      if (_isRunning) {
-        markerIcon = _movingMarkerIcon!;
-      }
       _startmarker.add(
         Marker(
           markerId: const MarkerId('startLocation'),
@@ -331,19 +328,18 @@ class _GpsMapState extends State<_CourseGpsMap> {
     double totalDistance = 0.0;
 
     for (int i = 0; i < points.length - 1; i++) {
-      double startLatitude = points[i].latitude;
-      double startLongitude = points[i].longitude;
-      double endLatitude = points[i + 1].latitude;
-      double endLongitude = points[i + 1].longitude;
-
       double distance = Geolocator.distanceBetween(
-          startLatitude, startLongitude, endLatitude, endLongitude);
-
+        points[i].latitude,
+        points[i].longitude,
+        points[i + 1].latitude,
+        points[i + 1].longitude,
+      );
       totalDistance += distance;
     }
 
     return totalDistance;
   }
+
 
   // 칼로리 계산
   double _calculateCalories(double distance, double weight) {
@@ -382,7 +378,7 @@ class _GpsMapState extends State<_CourseGpsMap> {
                     ),
                     SizedBox(height: 8),
                     Text(
-                      '거리: ${_totalDistance} m',
+                      '거리: ${_totalDistance.toStringAsFixed(2)} m',
                       style: TextStyle(fontFamily: "Cafe24Ssurround-Regular", fontSize: 16),
                     ),
                     SizedBox(height: 8),
