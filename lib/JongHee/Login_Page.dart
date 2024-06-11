@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:dio/adapter.dart';
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -172,11 +175,19 @@ Future<void> getUserData(storage, String id, String password, BuildContext conte
   print("getPersonByNo(): 데이터 가져오기 중");
   //print(id);
   //print(password);
+
   //코드 작성
+  Dio dio = Dio();
+
+  (dio.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate = (client) {
+    client.badCertificateCallback = (X509Certificate cert, String host, int port) => true;
+    return client;
+  };
+
   try {
     /*----요청처리-------------------*/
     //Dio 객체 생성 및 설정
-    var dio = Dio();
+
 
     // 헤더설정:json으로 전송
     dio.options.headers['Content-Type'] = 'application/json';
