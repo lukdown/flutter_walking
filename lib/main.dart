@@ -10,6 +10,7 @@ void main() {
   // FlutterSecureStorage 객체 생성
   final storage = FlutterSecureStorage(aOptions: _getAndroidOptions());
 
+
   // 애플리케이션 시작
   runApp(MyApp(storage: storage));
 }

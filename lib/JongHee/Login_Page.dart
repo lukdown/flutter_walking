@@ -183,7 +183,7 @@ Future<void> getUserData(storage, String id, String password, BuildContext conte
 
     // 서버 요청
     final response = await dio.post(
-      'http://43.201.96.200:9020/api/walking/loginpage',
+      'https://www.walkingstep.site/api/walking/loginpage',
       /*
         queryParameters: {
           // 예시 파라미터

@@ -1053,7 +1053,7 @@ class _Course_ListState extends State<_Course_List> {
 
       // 서버 요청
       final response = await dio.post(
-        'http://43.201.96.200:9020/api/walking/coursebooklist',
+        'https://www.walkingstep.site/api/walking/coursebooklist',
         data: {
           // 예시 data  map->json자동변경
           //'login_users_no': login_users_no,
@@ -1112,7 +1112,7 @@ class _Course_ListState extends State<_Course_List> {
 
       // 서버 요청
       final response = await dio.post(
-        'http://43.201.96.200:9020/api/walking/coursebooklist',
+        'https://www.walkingstep.site/api/walking/coursebooklist',
         data: {
           // 예시 data  map->json자동변경
           //'login_users_no': login_users_no,
@@ -1169,7 +1169,7 @@ class _Course_ListState extends State<_Course_List> {
 
       // 서버 요청
       final response = await dio.post(
-        'http://43.201.96.200:9020/api/walking/coursebookflist',
+        'https://www.walkingstep.site/api/walking/coursebookflist',
         data: login_users_no,
       );
 
@@ -1218,7 +1218,7 @@ class _Course_ListState extends State<_Course_List> {
 
       // 서버 요청
       final response = await dio.post(
-        'http://43.201.96.200:9020/api/walking/likeupdatedelete',
+        'https://www.walkingstep.site/api/walking/likeupdatedelete',
         data: {
           // 예시 data  map->json자동변경
           'users_no': login_users_no,
@@ -1262,7 +1262,7 @@ class _Course_ListState extends State<_Course_List> {
 
       // 서버 요청
       final response = await dio.delete(
-        'http://43.201.96.200:9020/api/walking/likeupdatedelete',
+        'https://www.walkingstep.site/api/walking/likeupdatedelete',
         data: {
           // 예시 data  map->json자동변경
           'users_no': login_users_no,

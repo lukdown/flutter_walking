@@ -251,6 +251,7 @@ class _GpsMapState extends State<_CourseGpsMap> {
       _totalDistance = 0.0;
       _caloriesBurned = 0.0;
       int locationUpdateCounter = 0;
+      _updateMarker(); // 마커 업데이트
       _timer = Timer.periodic(Duration(seconds: 1), (timer) {
         if (!_isPaused) {
           setState(() {
@@ -265,7 +266,7 @@ class _GpsMapState extends State<_CourseGpsMap> {
             getGeoData(); // 위치 업데이트
             polylineCoordinates.add(LatLng(double.parse(lat!), double.parse(lng!)));
             _updatePolyline(); // 폴리라인 업데이트 추가
-            _updateMarker(); // 마커 업데이트
+
 
             // 거리 및 칼로리 계산
             _totalDistance = _calculatePolylineLength(polylineCoordinates);
@@ -703,7 +704,7 @@ class _GpsMapState extends State<_CourseGpsMap> {
 
       // 서버 요청
       final response = await dio.post(
-        'http://43.201.96.200:9020/api/walking/coursebook/point/${course_no}',
+        'https://www.walkingstep.site/api/walking/coursebook/point/${course_no}',
       );
 
       /*----응답처리-------------------*/
@@ -759,7 +760,7 @@ class _GpsMapState extends State<_CourseGpsMap> {
 
       // 서버 요청
       final response = await dio.post(
-        'http://43.201.96.200:9020/api/walking/recorddraw',
+        'https://www.walkingstep.site/api/walking/recorddraw',
 
         data: data,
 
