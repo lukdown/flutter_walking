@@ -146,11 +146,11 @@ class _Course_ListState extends State<_Course_List> {
     //courseListFuture = getCourseList(login_users_no, 0);
     //print("initState(): 데이터 가져오기 후");
 
-    print("================================");
+    //print("================================");
     //print(login_users_no);
-    print("================================");
+    //print("================================");
 
-    print("Build(): 그리기 작업");
+    //print("Build(): 그리기 작업");
 
     return FutureBuilder(
       future: courseListFuture, //Future<> 함수명, 으로 받은 데이타
@@ -194,17 +194,17 @@ class _Course_ListState extends State<_Course_List> {
                     if (index == 1) {
                       setState(() {
                         courseListFuture = getMyCourseList();
-                        print("test1");
+                        //print("test1");
                       });
                     } else if (index == 2) {
                       setState(() {
                         courseListFuture = getCoursefList();
-                        print("test2");
+                        //print("test2");
                       });
                     } else if (index == 0) {
                       setState(() {
                         courseListFuture = getCourseList();
-                        print("test0");
+                        //print("test0");
                       });
                     }
                   },
@@ -410,10 +410,10 @@ class _Course_ListState extends State<_Course_List> {
                                         ),
                                         onPressed: () {
 
-                                          print("--------------------------------");
-                                          print("--------------------------------");
-                                          print("${snapshot.data![index].course_no}");
-                                          print("--------------------------------");
+                                         // print("--------------------------------");
+                                          //print("--------------------------------");
+                                          //print("${snapshot.data![index].course_no}");
+                                          //print("--------------------------------");
                                           storage.write(key: "courseNo", value: courseNono);
                                           Navigator.pushNamed(
                                             context,
@@ -999,8 +999,8 @@ class _Course_ListState extends State<_Course_List> {
                                           backgroundColor: Color(0xFF068cd2),
                                         ),
                                         onPressed: () {
-                                          print("-----------------------------------------");
-                                          print("${snapshot.data![index].course_no}");
+                                          //print("-----------------------------------------");
+                                          //print("${snapshot.data![index].course_no}");
                                           storage.write(key: "courseNo", value: courseNono);
                                           Navigator.pushNamed(
                                             context,
@@ -1038,10 +1038,10 @@ class _Course_ListState extends State<_Course_List> {
   Future<List<Course_list_Vo>> getCourseList() async {
     var login_users_no = await storage.read(key: 'UserNo');
 
-    print("=====421412============");
-    print(login_users_no);
+    //print("=====421412============");
+    //print(login_users_no);
 
-    print("=====421412============");
+    //print("=====421412============");
 
     try {
       /*----요청처리-------------------*/
@@ -1053,7 +1053,7 @@ class _Course_ListState extends State<_Course_List> {
 
       // 서버 요청
       final response = await dio.post(
-        'https://www.walkingstep.site/api/walking/coursebooklist',
+        'https://walkingstep.site/api/walking/coursebooklist',
         data: {
           // 예시 data  map->json자동변경
           //'login_users_no': login_users_no,
@@ -1112,7 +1112,7 @@ class _Course_ListState extends State<_Course_List> {
 
       // 서버 요청
       final response = await dio.post(
-        'https://www.walkingstep.site/api/walking/coursebooklist',
+        'https://walkingstep.site/api/walking/coursebooklist',
         data: {
           // 예시 data  map->json자동변경
           //'login_users_no': login_users_no,
@@ -1169,7 +1169,7 @@ class _Course_ListState extends State<_Course_List> {
 
       // 서버 요청
       final response = await dio.post(
-        'https://www.walkingstep.site/api/walking/coursebookflist',
+        'https://walkingstep.site/api/walking/coursebookflist',
         data: login_users_no,
       );
 
@@ -1218,7 +1218,7 @@ class _Course_ListState extends State<_Course_List> {
 
       // 서버 요청
       final response = await dio.post(
-        'https://www.walkingstep.site/api/walking/likeupdatedelete',
+        'https://walkingstep.site/api/walking/likeupdatedelete',
         data: {
           // 예시 data  map->json자동변경
           'users_no': login_users_no,
@@ -1262,7 +1262,7 @@ class _Course_ListState extends State<_Course_List> {
 
       // 서버 요청
       final response = await dio.delete(
-        'https://www.walkingstep.site/api/walking/likeupdatedelete',
+        'https://walkingstep.site/api/walking/likeupdatedelete',
         data: {
           // 예시 data  map->json자동변경
           'users_no': login_users_no,
@@ -1279,7 +1279,6 @@ class _Course_ListState extends State<_Course_List> {
         //print(response.data[0]); // json->map 자동변경
         //return PersonVo.fromJson(response.data["apiData"]);
         //print(response.data[0].productname);
-        print(response.data["apiData"]); // json->map 자동변경
         isLike = !isLike;
       } else {
         //접속실패 404, 502등등 api서버 문제

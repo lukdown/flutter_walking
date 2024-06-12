@@ -36,6 +36,7 @@ class _GpsMapState extends State<_CourseGpsMap> {
 
   final storage = const FlutterSecureStorage();
 
+
   late GoogleMapController mapController;
   late Timer _timer;
 
@@ -58,7 +59,7 @@ class _GpsMapState extends State<_CourseGpsMap> {
   BitmapDescriptor? _startMarkerIcon;
   BitmapDescriptor? _movingMarkerIcon;
   bool _isStarted = false; // 시작 상태를 저장하는 변수를 추가합니다.
-  late double _currentZoomLevel = 15.0; // 기본 확대/축소 레벨을 설정합니다.
+  late double _currentZoomLevel = 18.0; // 기본 확대/축소 레벨을 설정합니다.
   int users_no = 0;
   int course_no = 0;
 
@@ -82,7 +83,7 @@ class _GpsMapState extends State<_CourseGpsMap> {
     mapController = controller;
     mapController.getZoomLevel().then((zoomLevel) {
       setState(() {
-        _currentZoomLevel = zoomLevel; // 현재 확대/축소 레벨을 저장합니다.
+        _currentZoomLevel = _currentZoomLevel; // 현재 확대/축소 레벨을 저장합니다.
       });
     });
     _updateMarker();
@@ -119,17 +120,30 @@ class _GpsMapState extends State<_CourseGpsMap> {
       lat = position.latitude.toString();
       lng = position.longitude.toString();
     });
+
+    mapController.animateCamera(
+      CameraUpdate.newCameraPosition(
+        CameraPosition(
+          target: LatLng(double.parse(lat!), double.parse(lng!)),
+          zoom: _currentZoomLevel,
+        ),
+      ),
+    );
+
     _updateMarker(); // 그 위치에 마커가 찍힌다
+  }
+
+  // 맵 이동 시 호출되는 콜백
+  void _onCameraMove(CameraPosition position) {
+    setState(() {
+      _currentZoomLevel = position.zoom; // 현재 확대/축소 레벨 저장
+    });
   }
 
   //users_no 가져오기
   getUsersNo(FlutterSecureStorage storage) async{
-    print("user_nouser_nouser_nouser_nouser_nouser_nouser_no");
     print(await storage.read(key: 'UserNo'));
-    print("user_nouser_nouser_nouser_nouser_nouser_nouser_no");
-    print("courseNocourseNocourseNocourseNocourseNocourseNocourseNocourseNocourseNo");
     print(await storage.read(key: 'courseNo'));
-    print("courseNocourseNocourseNocourseNocourseNocourseNocourseNocourseNocourseNo");
     users_no = int.tryParse(await storage.read(key: 'UserNo') ?? '') ?? 0;
     course_no = int.tryParse(await storage.read(key: 'courseNo') ?? '') ?? 0;
   }
@@ -148,6 +162,7 @@ class _GpsMapState extends State<_CourseGpsMap> {
       print(polylineCoordinates[i].longitude);
       print("testtesttesttesttesttesttesttesttesttesttesttesttesttesttesttest");
     }
+
 
     // recordPointList 사용 가능
   }
@@ -173,7 +188,7 @@ class _GpsMapState extends State<_CourseGpsMap> {
         CameraUpdate.newCameraPosition(
           CameraPosition(
             target: LatLng(double.parse(lat!), double.parse(lng!)),
-            zoom: 15.0,
+            zoom: _currentZoomLevel,
           ),
         ),
       );
@@ -204,19 +219,12 @@ class _GpsMapState extends State<_CourseGpsMap> {
         _markers.addAll(_startmarker);
       }
 
-      mapController.animateCamera(
-        CameraUpdate.newCameraPosition(
-          CameraPosition(
-            target: LatLng(double.parse(lat!), double.parse(lng!)),
-            zoom: _currentZoomLevel, // 현재 확대/축소 레벨을 적용합니다.
-          ),
-        ),
-      );
-
       // 폴리라인 업데이트
       _updatePolyline();
     });
   }
+
+
 
 
 
@@ -250,23 +258,24 @@ class _GpsMapState extends State<_CourseGpsMap> {
       _seconds = 0;
       _totalDistance = 0.0;
       _caloriesBurned = 0.0;
-      int locationUpdateCounter = 0;
       _updateMarker(); // 마커 업데이트
       _timer = Timer.periodic(Duration(seconds: 1), (timer) {
         if (!_isPaused) {
           setState(() {
             _seconds++;
-            _markers.clear();
             _isStarted = true; // 시작 후에는 true로 설정
           });
 
-          locationUpdateCounter++;
-          if (locationUpdateCounter >= 3) {
-            locationUpdateCounter = 0;
-            getGeoData(); // 위치 업데이트
-            polylineCoordinates.add(LatLng(double.parse(lat!), double.parse(lng!)));
-            _updatePolyline(); // 폴리라인 업데이트 추가
+          // 매 0.5초마다 위치 업데이트
+          if (_seconds % 0.5 == 0) {
+            getGeoData();
+            _updateMarker();
+          }
 
+          // 매 3초마다 폴리라인 추가 및 거리, 칼로리 계산
+          if (_seconds % 3 == 0) {
+            polylineCoordinates.add(LatLng(double.parse(lat!), double.parse(lng!)));
+            _updatePolyline();
 
             // 거리 및 칼로리 계산
             _totalDistance = _calculatePolylineLength(polylineCoordinates);
@@ -607,7 +616,8 @@ class _GpsMapState extends State<_CourseGpsMap> {
                               zoom: 15.0,
                             ),
                             markers: _markers,
-                            polylines: _polylines
+                            polylines: _polylines,
+                            onCameraMove: _onCameraMove,
                         ),
                       ),
                       Container(
@@ -704,7 +714,7 @@ class _GpsMapState extends State<_CourseGpsMap> {
 
       // 서버 요청
       final response = await dio.post(
-        'https://www.walkingstep.site/api/walking/coursebook/point/${course_no}',
+        'https://walkingstep.site/api/walking/coursebook/point/${course_no}',
       );
 
       /*----응답처리-------------------*/
@@ -760,7 +770,7 @@ class _GpsMapState extends State<_CourseGpsMap> {
 
       // 서버 요청
       final response = await dio.post(
-        'https://www.walkingstep.site/api/walking/recorddraw',
+        'https://walkingstep.site/api/walking/recorddraw',
 
         data: data,
 
